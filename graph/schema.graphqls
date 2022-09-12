@@ -1,0 +1,117 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+schema {
+  query: Query
+  mutation: Mutation
+  # subscription: Subscription
+}
+
+type Query {
+  user(id: ID): User
+  feed: Videos
+  tagFeed: Videos
+}
+
+type Mutation {
+  userEdit(input: UserEditInput!): UserMutationResponse!
+  userDelete: BasicMutationResponse!
+
+  likeVideo(id: ID!, like: Boolean!): BasicMutationResponse!
+}
+
+# type Subscription {
+#   onUserUpdated()
+# }
+
+# USERS
+enum Preference {
+  STRAIGHT
+  GAY
+  TRANS
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NONBINARY
+}
+
+type User {
+  id: ID!
+  exists: Boolean
+  username: String
+  bio: String
+  preferences: [Preference!]
+}
+
+type Users {
+  users: [User]
+  next: String
+}
+
+input Pagination {
+  cursor: String
+  limit: Int
+}
+
+input UserEditInput {
+  username: String
+  bio: String
+  gender: Gender
+  preferences: [Preference!]
+}
+
+interface MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+type BasicMutationResponse implements MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+}
+
+type UserMutationResponse implements MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+  user: User
+}
+
+#VIDEOS
+type Thumbnail {
+  size: Int
+  url: String
+}
+
+type Video {
+  id: ID!
+  owner: User
+  url: String
+  tags: [String!]
+  thumbnails: [Thumbnail!]
+  description: String
+
+  numLikes: Int
+  numComments: Int
+}
+
+type Videos {
+  videos: [Videos]
+  next: String
+}
+
+type VideoMutationResponse implements MutationResponse {
+  code: Int!
+  success: Boolean!
+  message: String!
+  user: Video
+}
+
+input VideoEditInput {
+  description: String
+}
