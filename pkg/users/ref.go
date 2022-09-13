@@ -1,8 +1,8 @@
 package users
 
 import (
-	"github.com/pafkiuq/backend/pkg/firestore"
-	"github.com/pafkiuq/backend/pkg/format"
+	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
+	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 )
 
 const (

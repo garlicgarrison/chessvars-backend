@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"firebase.google.com/go/v4/auth"
-	"github.com/pafkiuq/backend/pkg/format"
+	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 )
 
 type ContextKey string

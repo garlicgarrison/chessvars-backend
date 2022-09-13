@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/pafkiuq/backend/graph/model"
-	"github.com/pafkiuq/backend/middleware"
-	"github.com/pafkiuq/backend/pkg/format"
+	"github.com/garlicgarrison/chessvars-backend/graph/model"
+	"github.com/garlicgarrison/chessvars-backend/middleware"
+	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 )
 
 // This file will not be regenerated automatically.

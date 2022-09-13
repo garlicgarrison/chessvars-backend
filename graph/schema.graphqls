@@ -8,17 +8,20 @@ schema {
   # subscription: Subscription
 }
 
+enum GameType {
+  JANGGI
+  SHOGI
+}
+
 type Query {
   user(id: ID): User
-  feed: Videos
-  tagFeed: Videos
 }
 
 type Mutation {
   userEdit(input: UserEditInput!): UserMutationResponse!
   userDelete: BasicMutationResponse!
 
-  gameCreate(): GameMutationResponse!
+  gameCreate(type: GameType!): GameMutationResponse!
 }
 
 # type Subscription {

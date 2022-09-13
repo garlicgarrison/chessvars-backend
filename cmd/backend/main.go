@@ -12,12 +12,12 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/garlicgarrison/chessvars-backend/graph"
+	"github.com/garlicgarrison/chessvars-backend/graph/generated"
+	"github.com/garlicgarrison/chessvars-backend/middleware"
+	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
+	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/pafkiuq/backend/graph"
-	"github.com/pafkiuq/backend/graph/generated"
-	"github.com/pafkiuq/backend/middleware"
-	"github.com/pafkiuq/backend/pkg/firestore"
-	"github.com/pafkiuq/backend/pkg/users"
 )
 
 type Config struct {

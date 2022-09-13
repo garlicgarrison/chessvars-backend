@@ -1,6 +1,6 @@
 package users
 
-import "github.com/pafkiuq/backend/pkg/format"
+import "github.com/garlicgarrison/chessvars-backend/pkg/format"
 
 type Gender string
 

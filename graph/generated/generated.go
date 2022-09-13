@@ -12,7 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/pafkiuq/backend/graph/model"
+	"github.com/garlicgarrison/chessvars-backend/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -49,28 +49,39 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	Game struct {
+		Aborted   func(childComplexity int) int
+		Draw      func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Moves     func(childComplexity int) int
+		PlayerOne func(childComplexity int) int
+		PlayerTwo func(childComplexity int) int
+		Timestamp func(childComplexity int) int
+		Winner    func(childComplexity int) int
+	}
+
+	GameMutationResponse struct {
+		Code    func(childComplexity int) int
+		Game    func(childComplexity int) int
+		Message func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	Mutation struct {
-		LikeVideo  func(childComplexity int, id string, like bool) int
+		GameCreate func(childComplexity int, typeArg model.GameType) int
 		UserDelete func(childComplexity int) int
 		UserEdit   func(childComplexity int, input model.UserEditInput) int
 	}
 
 	Query struct {
-		Feed func(childComplexity int) int
 		User func(childComplexity int, id *string) int
 	}
 
-	Thumbnail struct {
-		Size func(childComplexity int) int
-		URL  func(childComplexity int) int
-	}
-
 	User struct {
-		Bio         func(childComplexity int) int
-		Exists      func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Preferences func(childComplexity int) int
-		Username    func(childComplexity int) int
+		Elo      func(childComplexity int) int
+		Exists   func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Username func(childComplexity int) int
 	}
 
 	UserMutationResponse struct {
@@ -84,39 +95,15 @@ type ComplexityRoot struct {
 		Next  func(childComplexity int) int
 		Users func(childComplexity int) int
 	}
-
-	Video struct {
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		NumComments func(childComplexity int) int
-		NumLikes    func(childComplexity int) int
-		Owner       func(childComplexity int) int
-		Tags        func(childComplexity int) int
-		Thumbnails  func(childComplexity int) int
-		URL         func(childComplexity int) int
-	}
-
-	VideoMutationResponse struct {
-		Code    func(childComplexity int) int
-		Message func(childComplexity int) int
-		Success func(childComplexity int) int
-		User    func(childComplexity int) int
-	}
-
-	Videos struct {
-		Next   func(childComplexity int) int
-		Videos func(childComplexity int) int
-	}
 }
 
 type MutationResolver interface {
 	UserEdit(ctx context.Context, input model.UserEditInput) (*model.UserMutationResponse, error)
 	UserDelete(ctx context.Context) (*model.BasicMutationResponse, error)
-	LikeVideo(ctx context.Context, id string, like bool) (*model.BasicMutationResponse, error)
+	GameCreate(ctx context.Context, typeArg model.GameType) (*model.GameMutationResponse, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id *string) (*model.User, error)
-	Feed(ctx context.Context) (*model.Videos, error)
 }
 
 type executableSchema struct {
@@ -155,17 +142,101 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BasicMutationResponse.Success(childComplexity), true
 
-	case "Mutation.likeVideo":
-		if e.complexity.Mutation.LikeVideo == nil {
+	case "Game.aborted":
+		if e.complexity.Game.Aborted == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_likeVideo_args(context.TODO(), rawArgs)
+		return e.complexity.Game.Aborted(childComplexity), true
+
+	case "Game.draw":
+		if e.complexity.Game.Draw == nil {
+			break
+		}
+
+		return e.complexity.Game.Draw(childComplexity), true
+
+	case "Game.id":
+		if e.complexity.Game.ID == nil {
+			break
+		}
+
+		return e.complexity.Game.ID(childComplexity), true
+
+	case "Game.moves":
+		if e.complexity.Game.Moves == nil {
+			break
+		}
+
+		return e.complexity.Game.Moves(childComplexity), true
+
+	case "Game.playerOne":
+		if e.complexity.Game.PlayerOne == nil {
+			break
+		}
+
+		return e.complexity.Game.PlayerOne(childComplexity), true
+
+	case "Game.playerTwo":
+		if e.complexity.Game.PlayerTwo == nil {
+			break
+		}
+
+		return e.complexity.Game.PlayerTwo(childComplexity), true
+
+	case "Game.timestamp":
+		if e.complexity.Game.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.Game.Timestamp(childComplexity), true
+
+	case "Game.winner":
+		if e.complexity.Game.Winner == nil {
+			break
+		}
+
+		return e.complexity.Game.Winner(childComplexity), true
+
+	case "GameMutationResponse.code":
+		if e.complexity.GameMutationResponse.Code == nil {
+			break
+		}
+
+		return e.complexity.GameMutationResponse.Code(childComplexity), true
+
+	case "GameMutationResponse.game":
+		if e.complexity.GameMutationResponse.Game == nil {
+			break
+		}
+
+		return e.complexity.GameMutationResponse.Game(childComplexity), true
+
+	case "GameMutationResponse.message":
+		if e.complexity.GameMutationResponse.Message == nil {
+			break
+		}
+
+		return e.complexity.GameMutationResponse.Message(childComplexity), true
+
+	case "GameMutationResponse.success":
+		if e.complexity.GameMutationResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GameMutationResponse.Success(childComplexity), true
+
+	case "Mutation.gameCreate":
+		if e.complexity.Mutation.GameCreate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_gameCreate_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.LikeVideo(childComplexity, args["id"].(string), args["like"].(bool)), true
+		return e.complexity.Mutation.GameCreate(childComplexity, args["type"].(model.GameType)), true
 
 	case "Mutation.userDelete":
 		if e.complexity.Mutation.UserDelete == nil {
@@ -186,13 +257,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UserEdit(childComplexity, args["input"].(model.UserEditInput)), true
 
-	case "Query.feed":
-		if e.complexity.Query.Feed == nil {
-			break
-		}
-
-		return e.complexity.Query.Feed(childComplexity), true
-
 	case "Query.user":
 		if e.complexity.Query.User == nil {
 			break
@@ -205,26 +269,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.User(childComplexity, args["id"].(*string)), true
 
-	case "Thumbnail.size":
-		if e.complexity.Thumbnail.Size == nil {
+	case "User.elo":
+		if e.complexity.User.Elo == nil {
 			break
 		}
 
-		return e.complexity.Thumbnail.Size(childComplexity), true
-
-	case "Thumbnail.url":
-		if e.complexity.Thumbnail.URL == nil {
-			break
-		}
-
-		return e.complexity.Thumbnail.URL(childComplexity), true
-
-	case "User.bio":
-		if e.complexity.User.Bio == nil {
-			break
-		}
-
-		return e.complexity.User.Bio(childComplexity), true
+		return e.complexity.User.Elo(childComplexity), true
 
 	case "User.exists":
 		if e.complexity.User.Exists == nil {
@@ -239,13 +289,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.ID(childComplexity), true
-
-	case "User.preferences":
-		if e.complexity.User.Preferences == nil {
-			break
-		}
-
-		return e.complexity.User.Preferences(childComplexity), true
 
 	case "User.username":
 		if e.complexity.User.Username == nil {
@@ -296,104 +339,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Users.Users(childComplexity), true
 
-	case "Video.description":
-		if e.complexity.Video.Description == nil {
-			break
-		}
-
-		return e.complexity.Video.Description(childComplexity), true
-
-	case "Video.id":
-		if e.complexity.Video.ID == nil {
-			break
-		}
-
-		return e.complexity.Video.ID(childComplexity), true
-
-	case "Video.numComments":
-		if e.complexity.Video.NumComments == nil {
-			break
-		}
-
-		return e.complexity.Video.NumComments(childComplexity), true
-
-	case "Video.numLikes":
-		if e.complexity.Video.NumLikes == nil {
-			break
-		}
-
-		return e.complexity.Video.NumLikes(childComplexity), true
-
-	case "Video.owner":
-		if e.complexity.Video.Owner == nil {
-			break
-		}
-
-		return e.complexity.Video.Owner(childComplexity), true
-
-	case "Video.tags":
-		if e.complexity.Video.Tags == nil {
-			break
-		}
-
-		return e.complexity.Video.Tags(childComplexity), true
-
-	case "Video.thumbnails":
-		if e.complexity.Video.Thumbnails == nil {
-			break
-		}
-
-		return e.complexity.Video.Thumbnails(childComplexity), true
-
-	case "Video.url":
-		if e.complexity.Video.URL == nil {
-			break
-		}
-
-		return e.complexity.Video.URL(childComplexity), true
-
-	case "VideoMutationResponse.code":
-		if e.complexity.VideoMutationResponse.Code == nil {
-			break
-		}
-
-		return e.complexity.VideoMutationResponse.Code(childComplexity), true
-
-	case "VideoMutationResponse.message":
-		if e.complexity.VideoMutationResponse.Message == nil {
-			break
-		}
-
-		return e.complexity.VideoMutationResponse.Message(childComplexity), true
-
-	case "VideoMutationResponse.success":
-		if e.complexity.VideoMutationResponse.Success == nil {
-			break
-		}
-
-		return e.complexity.VideoMutationResponse.Success(childComplexity), true
-
-	case "VideoMutationResponse.user":
-		if e.complexity.VideoMutationResponse.User == nil {
-			break
-		}
-
-		return e.complexity.VideoMutationResponse.User(childComplexity), true
-
-	case "Videos.next":
-		if e.complexity.Videos.Next == nil {
-			break
-		}
-
-		return e.complexity.Videos.Next(childComplexity), true
-
-	case "Videos.videos":
-		if e.complexity.Videos.Videos == nil {
-			break
-		}
-
-		return e.complexity.Videos.Videos(childComplexity), true
-
 	}
 	return 0, false
 }
@@ -404,7 +349,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputUserEditInput,
-		ec.unmarshalInputVideoEditInput,
 	)
 	first := true
 
@@ -475,16 +419,20 @@ schema {
   # subscription: Subscription
 }
 
+enum GameType {
+  JANGGI
+  SHOGI
+}
+
 type Query {
   user(id: ID): User
-  feed: Videos
 }
 
 type Mutation {
   userEdit(input: UserEditInput!): UserMutationResponse!
   userDelete: BasicMutationResponse!
 
-  likeVideo(id: ID!, like: Boolean!): BasicMutationResponse!
+  gameCreate(type: GameType!): GameMutationResponse!
 }
 
 # type Subscription {
@@ -492,29 +440,27 @@ type Mutation {
 # }
 
 # USERS
-enum Preference {
-  STRAIGHT
-  GAY
-  TRANS
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  NONBINARY
-}
-
 type User {
   id: ID!
   exists: Boolean
   username: String
-  bio: String
-  preferences: [Preference!]
+  elo: Int
 }
 
 type Users {
   users: [User]
   next: String
+}
+
+type Game {
+  id: ID!
+  moves: [String!]
+  playerOne: User
+  playerTwo: User
+  winner: User
+  draw: Boolean
+  aborted: Boolean
+  timestamp: String
 }
 
 input Pagination {
@@ -525,8 +471,6 @@ input Pagination {
 input UserEditInput {
   username: String
   bio: String
-  gender: Gender
-  preferences: [Preference!]
 }
 
 interface MutationResponse {
@@ -548,38 +492,11 @@ type UserMutationResponse implements MutationResponse {
   user: User
 }
 
-#VIDEOS
-type Thumbnail {
-  size: Int
-  url: String
-}
-
-type Video {
-  id: ID!
-  owner: User
-  url: String
-  tags: [String!]
-  thumbnails: [Thumbnail!]
-  description: String
-
-  numLikes: Int
-  numComments: Int
-}
-
-type Videos {
-  videos: [Videos]
-  next: String
-}
-
-type VideoMutationResponse implements MutationResponse {
+type GameMutationResponse implements MutationResponse {
   code: Int!
   success: Boolean!
   message: String!
-  user: Video
-}
-
-input VideoEditInput {
-  description: String
+  game: Game
 }
 `, BuiltIn: false},
 }
@@ -589,27 +506,18 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_likeVideo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_gameCreate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+	var arg0 model.GameType
+	if tmp, ok := rawArgs["type"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+		arg0, err = ec.unmarshalNGameType2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["id"] = arg0
-	var arg1 bool
-	if tmp, ok := rawArgs["like"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("like"))
-		arg1, err = ec.unmarshalNBoolean2bool(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["like"] = arg1
+	args["type"] = arg0
 	return args, nil
 }
 
@@ -619,7 +527,7 @@ func (ec *executionContext) field_Mutation_userEdit_args(ctx context.Context, ra
 	var arg0 model.UserEditInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUserEditInput2githubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUserEditInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUserEditInput2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUserEditInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -828,6 +736,558 @@ func (ec *executionContext) fieldContext_BasicMutationResponse_message(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Game_id(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_moves(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_moves(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Moves, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_moves(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_playerOne(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_playerOne(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlayerOne, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_playerOne(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "exists":
+				return ec.fieldContext_User_exists(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "elo":
+				return ec.fieldContext_User_elo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_playerTwo(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_playerTwo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlayerTwo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_playerTwo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "exists":
+				return ec.fieldContext_User_exists(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "elo":
+				return ec.fieldContext_User_elo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_winner(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_winner(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Winner, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_winner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "exists":
+				return ec.fieldContext_User_exists(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "elo":
+				return ec.fieldContext_User_elo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_draw(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_draw(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Draw, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_draw(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_aborted(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_aborted(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Aborted, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_aborted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_timestamp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Timestamp, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_timestamp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GameMutationResponse_code(ctx context.Context, field graphql.CollectedField, obj *model.GameMutationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameMutationResponse_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GameMutationResponse_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GameMutationResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GameMutationResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GameMutationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameMutationResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GameMutationResponse_success(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GameMutationResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GameMutationResponse_message(ctx context.Context, field graphql.CollectedField, obj *model.GameMutationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameMutationResponse_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GameMutationResponse_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GameMutationResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GameMutationResponse_game(ctx context.Context, field graphql.CollectedField, obj *model.GameMutationResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameMutationResponse_game(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Game, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Game)
+	fc.Result = res
+	return ec.marshalOGame2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGame(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GameMutationResponse_game(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GameMutationResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Game_id(ctx, field)
+			case "moves":
+				return ec.fieldContext_Game_moves(ctx, field)
+			case "playerOne":
+				return ec.fieldContext_Game_playerOne(ctx, field)
+			case "playerTwo":
+				return ec.fieldContext_Game_playerTwo(ctx, field)
+			case "winner":
+				return ec.fieldContext_Game_winner(ctx, field)
+			case "draw":
+				return ec.fieldContext_Game_draw(ctx, field)
+			case "aborted":
+				return ec.fieldContext_Game_aborted(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_Game_timestamp(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_userEdit(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_userEdit(ctx, field)
 	if err != nil {
@@ -856,7 +1316,7 @@ func (ec *executionContext) _Mutation_userEdit(ctx context.Context, field graphq
 	}
 	res := resTmp.(*model.UserMutationResponse)
 	fc.Result = res
-	return ec.marshalNUserMutationResponse2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUserMutationResponse(ctx, field.Selections, res)
+	return ec.marshalNUserMutationResponse2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUserMutationResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_userEdit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -921,7 +1381,7 @@ func (ec *executionContext) _Mutation_userDelete(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.BasicMutationResponse)
 	fc.Result = res
-	return ec.marshalNBasicMutationResponse2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐBasicMutationResponse(ctx, field.Selections, res)
+	return ec.marshalNBasicMutationResponse2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐBasicMutationResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_userDelete(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -945,8 +1405,8 @@ func (ec *executionContext) fieldContext_Mutation_userDelete(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_likeVideo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_likeVideo(ctx, field)
+func (ec *executionContext) _Mutation_gameCreate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_gameCreate(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -959,7 +1419,7 @@ func (ec *executionContext) _Mutation_likeVideo(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().LikeVideo(rctx, fc.Args["id"].(string), fc.Args["like"].(bool))
+		return ec.resolvers.Mutation().GameCreate(rctx, fc.Args["type"].(model.GameType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -971,12 +1431,12 @@ func (ec *executionContext) _Mutation_likeVideo(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.BasicMutationResponse)
+	res := resTmp.(*model.GameMutationResponse)
 	fc.Result = res
-	return ec.marshalNBasicMutationResponse2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐBasicMutationResponse(ctx, field.Selections, res)
+	return ec.marshalNGameMutationResponse2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameMutationResponse(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_likeVideo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_gameCreate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -985,13 +1445,15 @@ func (ec *executionContext) fieldContext_Mutation_likeVideo(ctx context.Context,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "code":
-				return ec.fieldContext_BasicMutationResponse_code(ctx, field)
+				return ec.fieldContext_GameMutationResponse_code(ctx, field)
 			case "success":
-				return ec.fieldContext_BasicMutationResponse_success(ctx, field)
+				return ec.fieldContext_GameMutationResponse_success(ctx, field)
 			case "message":
-				return ec.fieldContext_BasicMutationResponse_message(ctx, field)
+				return ec.fieldContext_GameMutationResponse_message(ctx, field)
+			case "game":
+				return ec.fieldContext_GameMutationResponse_game(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type BasicMutationResponse", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type GameMutationResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -1001,7 +1463,7 @@ func (ec *executionContext) fieldContext_Mutation_likeVideo(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_likeVideo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_gameCreate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -1033,7 +1495,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1050,10 +1512,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_exists(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
-			case "bio":
-				return ec.fieldContext_User_bio(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
+			case "elo":
+				return ec.fieldContext_User_elo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1068,53 +1528,6 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 	if fc.Args, err = ec.field_Query_user_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_feed(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_feed(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Feed(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Videos)
-	fc.Result = res
-	return ec.marshalOVideos2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐVideos(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_feed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "videos":
-				return ec.fieldContext_Videos_videos(ctx, field)
-			case "next":
-				return ec.fieldContext_Videos_next(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Videos", field.Name)
-		},
 	}
 	return fc, nil
 }
@@ -1248,88 +1661,6 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Thumbnail_size(ctx context.Context, field graphql.CollectedField, obj *model.Thumbnail) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Thumbnail_size(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Size, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Thumbnail_size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Thumbnail",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Thumbnail_url(ctx context.Context, field graphql.CollectedField, obj *model.Thumbnail) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Thumbnail_url(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.URL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Thumbnail_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Thumbnail",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_id(ctx, field)
 	if err != nil {
@@ -1456,8 +1787,8 @@ func (ec *executionContext) fieldContext_User_username(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _User_bio(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_bio(ctx, field)
+func (ec *executionContext) _User_elo(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_elo(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1470,7 +1801,7 @@ func (ec *executionContext) _User_bio(ctx context.Context, field graphql.Collect
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Bio, nil
+		return obj.Elo, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1479,60 +1810,19 @@ func (ec *executionContext) _User_bio(ctx context.Context, field graphql.Collect
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_bio(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_elo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_preferences(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_preferences(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Preferences, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]model.Preference)
-	fc.Result = res
-	return ec.marshalOPreference2ᚕgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐPreferenceᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_preferences(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Preference does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1695,7 +1985,7 @@ func (ec *executionContext) _UserMutationResponse_user(ctx context.Context, fiel
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserMutationResponse_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1712,10 +2002,8 @@ func (ec *executionContext) fieldContext_UserMutationResponse_user(ctx context.C
 				return ec.fieldContext_User_exists(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
-			case "bio":
-				return ec.fieldContext_User_bio(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
+			case "elo":
+				return ec.fieldContext_User_elo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1748,7 +2036,7 @@ func (ec *executionContext) _Users_users(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.User)
 	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Users_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1765,10 +2053,8 @@ func (ec *executionContext) fieldContext_Users_users(ctx context.Context, field 
 				return ec.fieldContext_User_exists(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
-			case "bio":
-				return ec.fieldContext_User_bio(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
+			case "elo":
+				return ec.fieldContext_User_elo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1807,634 +2093,6 @@ func (ec *executionContext) _Users_next(ctx context.Context, field graphql.Colle
 func (ec *executionContext) fieldContext_Users_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Users",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Video_id(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Video_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Video_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Video",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Video_owner(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Video_owner(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Owner, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.User)
-	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Video_owner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Video",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "exists":
-				return ec.fieldContext_User_exists(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "bio":
-				return ec.fieldContext_User_bio(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Video_url(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Video_url(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.URL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Video_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Video",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Video_tags(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Video_tags(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Tags, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Video_tags(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Video",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Video_thumbnails(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Video_thumbnails(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Thumbnails, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Thumbnail)
-	fc.Result = res
-	return ec.marshalOThumbnail2ᚕᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐThumbnailᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Video_thumbnails(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Video",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "size":
-				return ec.fieldContext_Thumbnail_size(ctx, field)
-			case "url":
-				return ec.fieldContext_Thumbnail_url(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Thumbnail", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Video_description(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Video_description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Video_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Video",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Video_numLikes(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Video_numLikes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.NumLikes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Video_numLikes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Video",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Video_numComments(ctx context.Context, field graphql.CollectedField, obj *model.Video) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Video_numComments(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.NumComments, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Video_numComments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Video",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VideoMutationResponse_code(ctx context.Context, field graphql.CollectedField, obj *model.VideoMutationResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VideoMutationResponse_code(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Code, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VideoMutationResponse_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VideoMutationResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VideoMutationResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.VideoMutationResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VideoMutationResponse_success(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VideoMutationResponse_success(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VideoMutationResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VideoMutationResponse_message(ctx context.Context, field graphql.CollectedField, obj *model.VideoMutationResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VideoMutationResponse_message(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Message, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VideoMutationResponse_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VideoMutationResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VideoMutationResponse_user(ctx context.Context, field graphql.CollectedField, obj *model.VideoMutationResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VideoMutationResponse_user(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Video)
-	fc.Result = res
-	return ec.marshalOVideo2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐVideo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VideoMutationResponse_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VideoMutationResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Video_id(ctx, field)
-			case "owner":
-				return ec.fieldContext_Video_owner(ctx, field)
-			case "url":
-				return ec.fieldContext_Video_url(ctx, field)
-			case "tags":
-				return ec.fieldContext_Video_tags(ctx, field)
-			case "thumbnails":
-				return ec.fieldContext_Video_thumbnails(ctx, field)
-			case "description":
-				return ec.fieldContext_Video_description(ctx, field)
-			case "numLikes":
-				return ec.fieldContext_Video_numLikes(ctx, field)
-			case "numComments":
-				return ec.fieldContext_Video_numComments(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Video", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Videos_videos(ctx context.Context, field graphql.CollectedField, obj *model.Videos) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Videos_videos(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Videos, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Videos)
-	fc.Result = res
-	return ec.marshalOVideos2ᚕᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐVideos(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Videos_videos(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Videos",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "videos":
-				return ec.fieldContext_Videos_videos(ctx, field)
-			case "next":
-				return ec.fieldContext_Videos_next(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Videos", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Videos_next(ctx context.Context, field graphql.CollectedField, obj *model.Videos) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Videos_next(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Next, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Videos_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Videos",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4261,7 +3919,7 @@ func (ec *executionContext) unmarshalInputUserEditInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"username", "bio", "gender", "preferences"}
+	fieldsInOrder := [...]string{"username", "bio"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4281,50 +3939,6 @@ func (ec *executionContext) unmarshalInputUserEditInput(ctx context.Context, obj
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bio"))
 			it.Bio, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "gender":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gender"))
-			it.Gender, err = ec.unmarshalOGender2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐGender(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "preferences":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preferences"))
-			it.Preferences, err = ec.unmarshalOPreference2ᚕgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐPreferenceᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputVideoEditInput(ctx context.Context, obj interface{}) (model.VideoEditInput, error) {
-	var it model.VideoEditInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"description"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "description":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4356,13 +3970,13 @@ func (ec *executionContext) _MutationResponse(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._UserMutationResponse(ctx, sel, obj)
-	case model.VideoMutationResponse:
-		return ec._VideoMutationResponse(ctx, sel, &obj)
-	case *model.VideoMutationResponse:
+	case model.GameMutationResponse:
+		return ec._GameMutationResponse(ctx, sel, &obj)
+	case *model.GameMutationResponse:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._VideoMutationResponse(ctx, sel, obj)
+		return ec._GameMutationResponse(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -4414,6 +4028,108 @@ func (ec *executionContext) _BasicMutationResponse(ctx context.Context, sel ast.
 	return out
 }
 
+var gameImplementors = []string{"Game"}
+
+func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj *model.Game) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, gameImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Game")
+		case "id":
+
+			out.Values[i] = ec._Game_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "moves":
+
+			out.Values[i] = ec._Game_moves(ctx, field, obj)
+
+		case "playerOne":
+
+			out.Values[i] = ec._Game_playerOne(ctx, field, obj)
+
+		case "playerTwo":
+
+			out.Values[i] = ec._Game_playerTwo(ctx, field, obj)
+
+		case "winner":
+
+			out.Values[i] = ec._Game_winner(ctx, field, obj)
+
+		case "draw":
+
+			out.Values[i] = ec._Game_draw(ctx, field, obj)
+
+		case "aborted":
+
+			out.Values[i] = ec._Game_aborted(ctx, field, obj)
+
+		case "timestamp":
+
+			out.Values[i] = ec._Game_timestamp(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var gameMutationResponseImplementors = []string{"GameMutationResponse", "MutationResponse"}
+
+func (ec *executionContext) _GameMutationResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GameMutationResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, gameMutationResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GameMutationResponse")
+		case "code":
+
+			out.Values[i] = ec._GameMutationResponse_code(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "success":
+
+			out.Values[i] = ec._GameMutationResponse_success(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "message":
+
+			out.Values[i] = ec._GameMutationResponse_message(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "game":
+
+			out.Values[i] = ec._GameMutationResponse_game(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4451,10 +4167,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "likeVideo":
+		case "gameCreate":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_likeVideo(ctx, field)
+				return ec._Mutation_gameCreate(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -4510,26 +4226,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "feed":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_feed(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -4541,35 +4237,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var thumbnailImplementors = []string{"Thumbnail"}
-
-func (ec *executionContext) _Thumbnail(ctx context.Context, sel ast.SelectionSet, obj *model.Thumbnail) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, thumbnailImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Thumbnail")
-		case "size":
-
-			out.Values[i] = ec._Thumbnail_size(ctx, field, obj)
-
-		case "url":
-
-			out.Values[i] = ec._Thumbnail_url(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -4607,13 +4274,9 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._User_username(ctx, field, obj)
 
-		case "bio":
+		case "elo":
 
-			out.Values[i] = ec._User_bio(ctx, field, obj)
-
-		case "preferences":
-
-			out.Values[i] = ec._User_preferences(ctx, field, obj)
+			out.Values[i] = ec._User_elo(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -4689,137 +4352,6 @@ func (ec *executionContext) _Users(ctx context.Context, sel ast.SelectionSet, ob
 		case "next":
 
 			out.Values[i] = ec._Users_next(ctx, field, obj)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var videoImplementors = []string{"Video"}
-
-func (ec *executionContext) _Video(ctx context.Context, sel ast.SelectionSet, obj *model.Video) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, videoImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Video")
-		case "id":
-
-			out.Values[i] = ec._Video_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "owner":
-
-			out.Values[i] = ec._Video_owner(ctx, field, obj)
-
-		case "url":
-
-			out.Values[i] = ec._Video_url(ctx, field, obj)
-
-		case "tags":
-
-			out.Values[i] = ec._Video_tags(ctx, field, obj)
-
-		case "thumbnails":
-
-			out.Values[i] = ec._Video_thumbnails(ctx, field, obj)
-
-		case "description":
-
-			out.Values[i] = ec._Video_description(ctx, field, obj)
-
-		case "numLikes":
-
-			out.Values[i] = ec._Video_numLikes(ctx, field, obj)
-
-		case "numComments":
-
-			out.Values[i] = ec._Video_numComments(ctx, field, obj)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var videoMutationResponseImplementors = []string{"VideoMutationResponse", "MutationResponse"}
-
-func (ec *executionContext) _VideoMutationResponse(ctx context.Context, sel ast.SelectionSet, obj *model.VideoMutationResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, videoMutationResponseImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("VideoMutationResponse")
-		case "code":
-
-			out.Values[i] = ec._VideoMutationResponse_code(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "success":
-
-			out.Values[i] = ec._VideoMutationResponse_success(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "message":
-
-			out.Values[i] = ec._VideoMutationResponse_message(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "user":
-
-			out.Values[i] = ec._VideoMutationResponse_user(ctx, field, obj)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var videosImplementors = []string{"Videos"}
-
-func (ec *executionContext) _Videos(ctx context.Context, sel ast.SelectionSet, obj *model.Videos) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, videosImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Videos")
-		case "videos":
-
-			out.Values[i] = ec._Videos_videos(ctx, field, obj)
-
-		case "next":
-
-			out.Values[i] = ec._Videos_next(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -5150,11 +4682,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBasicMutationResponse2githubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐBasicMutationResponse(ctx context.Context, sel ast.SelectionSet, v model.BasicMutationResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNBasicMutationResponse2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐBasicMutationResponse(ctx context.Context, sel ast.SelectionSet, v model.BasicMutationResponse) graphql.Marshaler {
 	return ec._BasicMutationResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNBasicMutationResponse2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐBasicMutationResponse(ctx context.Context, sel ast.SelectionSet, v *model.BasicMutationResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNBasicMutationResponse2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐBasicMutationResponse(ctx context.Context, sel ast.SelectionSet, v *model.BasicMutationResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5177,6 +4709,30 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNGameMutationResponse2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameMutationResponse(ctx context.Context, sel ast.SelectionSet, v model.GameMutationResponse) graphql.Marshaler {
+	return ec._GameMutationResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGameMutationResponse2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameMutationResponse(ctx context.Context, sel ast.SelectionSet, v *model.GameMutationResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GameMutationResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGameType2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameType(ctx context.Context, v interface{}) (model.GameType, error) {
+	var res model.GameType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGameType2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameType(ctx context.Context, sel ast.SelectionSet, v model.GameType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
@@ -5209,16 +4765,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNPreference2githubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐPreference(ctx context.Context, v interface{}) (model.Preference, error) {
-	var res model.Preference
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNPreference2githubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐPreference(ctx context.Context, sel ast.SelectionSet, v model.Preference) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5234,26 +4780,16 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNThumbnail2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐThumbnail(ctx context.Context, sel ast.SelectionSet, v *model.Thumbnail) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Thumbnail(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNUserEditInput2githubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUserEditInput(ctx context.Context, v interface{}) (model.UserEditInput, error) {
+func (ec *executionContext) unmarshalNUserEditInput2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUserEditInput(ctx context.Context, v interface{}) (model.UserEditInput, error) {
 	res, err := ec.unmarshalInputUserEditInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserMutationResponse2githubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUserMutationResponse(ctx context.Context, sel ast.SelectionSet, v model.UserMutationResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNUserMutationResponse2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUserMutationResponse(ctx context.Context, sel ast.SelectionSet, v model.UserMutationResponse) graphql.Marshaler {
 	return ec._UserMutationResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserMutationResponse2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUserMutationResponse(ctx context.Context, sel ast.SelectionSet, v *model.UserMutationResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNUserMutationResponse2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUserMutationResponse(ctx context.Context, sel ast.SelectionSet, v *model.UserMutationResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5542,20 +5078,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOGender2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐGender(ctx context.Context, v interface{}) (*model.Gender, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model.Gender)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOGender2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐGender(ctx context.Context, sel ast.SelectionSet, v *model.Gender) graphql.Marshaler {
+func (ec *executionContext) marshalOGame2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGame(ctx context.Context, sel ast.SelectionSet, v *model.Game) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return v
+	return ec._Game(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
@@ -5588,73 +5115,6 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
-}
-
-func (ec *executionContext) unmarshalOPreference2ᚕgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐPreferenceᚄ(ctx context.Context, v interface{}) ([]model.Preference, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]model.Preference, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNPreference2githubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐPreference(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOPreference2ᚕgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐPreferenceᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Preference) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPreference2githubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐPreference(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
@@ -5711,7 +5171,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOThumbnail2ᚕᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐThumbnailᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Thumbnail) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5738,54 +5198,7 @@ func (ec *executionContext) marshalOThumbnail2ᚕᚖgithubᚗcomᚋpafkiuqᚋbac
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNThumbnail2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐThumbnail(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5799,66 +5212,11 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋpafkiuqᚋbackend�
 	return ret
 }
 
-func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOVideo2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐVideo(ctx context.Context, sel ast.SelectionSet, v *model.Video) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Video(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOVideos2ᚕᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐVideos(ctx context.Context, sel ast.SelectionSet, v []*model.Videos) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOVideos2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐVideos(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) marshalOVideos2ᚖgithubᚗcomᚋpafkiuqᚋbackendᚋgraphᚋmodelᚐVideos(ctx context.Context, sel ast.SelectionSet, v *model.Videos) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Videos(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

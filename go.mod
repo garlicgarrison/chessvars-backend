@@ -1,4 +1,4 @@
-module github.com/pafkiuq/backend
+module github.com/garlicgarrison/chessvars-backend
 
 go 1.18
 

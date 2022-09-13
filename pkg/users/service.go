@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pafkiuq/backend/graph/model"
-	"github.com/pafkiuq/backend/pkg/firestore"
-	"github.com/pafkiuq/backend/pkg/format"
+	"github.com/garlicgarrison/chessvars-backend/graph/model"
+	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
+	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -20,6 +20,8 @@ type Config struct {
 type Service struct {
 	fs firestore.Firestore
 }
+
+const DEFAULT_ELO int = 1200
 
 func NewService(cfg Config) (*Service, error) {
 	if cfg.Firestore == nil {
@@ -43,6 +45,7 @@ func populateUser(user *UserDocument) *model.User {
 func (s *Service) CreateUser(ctx context.Context, userID format.UserID) (*model.User, error) {
 	user := UserDocument{
 		UserID: userID,
+		Elo:    DEFAULT_ELO,
 	}
 
 	_, err := s.getUserRef(userID).Create(ctx, user)
@@ -109,19 +112,6 @@ func (s *Service) EditUser(ctx context.Context, userID format.UserID, input mode
 			}
 
 			user.Username = username
-		}
-
-		if input.Gender != nil {
-			switch *input.Gender {
-			case model.GenderMale:
-				user.Gender = GENDER_MALE
-			case model.GenderFemale:
-				user.Gender = GENDER_FEMALE
-			case model.GenderNonbinary:
-				user.Gender = GENDER_NONBINARY
-			default:
-				user.Gender = GENDER_UNKNOWN
-			}
 		}
 
 		return t.Set(s.getUserRef(userID), user)

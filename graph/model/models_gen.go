@@ -20,29 +20,41 @@ type BasicMutationResponse struct {
 
 func (BasicMutationResponse) IsMutationResponse() {}
 
+type Game struct {
+	ID        string   `json:"id"`
+	Moves     []string `json:"moves"`
+	PlayerOne *User    `json:"playerOne"`
+	PlayerTwo *User    `json:"playerTwo"`
+	Winner    *User    `json:"winner"`
+	Draw      *bool    `json:"draw"`
+	Aborted   *bool    `json:"aborted"`
+	Timestamp *string  `json:"timestamp"`
+}
+
+type GameMutationResponse struct {
+	Code    int    `json:"code"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Game    *Game  `json:"game"`
+}
+
+func (GameMutationResponse) IsMutationResponse() {}
+
 type Pagination struct {
 	Cursor *string `json:"cursor"`
 	Limit  *int    `json:"limit"`
 }
 
-type Thumbnail struct {
-	Size *int    `json:"size"`
-	URL  *string `json:"url"`
-}
-
 type User struct {
-	ID          string       `json:"id"`
-	Exists      *bool        `json:"exists"`
-	Username    *string      `json:"username"`
-	Bio         *string      `json:"bio"`
-	Preferences []Preference `json:"preferences"`
+	ID       string  `json:"id"`
+	Exists   *bool   `json:"exists"`
+	Username *string `json:"username"`
+	Elo      *int    `json:"elo"`
 }
 
 type UserEditInput struct {
-	Username    *string      `json:"username"`
-	Bio         *string      `json:"bio"`
-	Gender      *Gender      `json:"gender"`
-	Preferences []Preference `json:"preferences"`
+	Username *string `json:"username"`
+	Bio      *string `json:"bio"`
 }
 
 type UserMutationResponse struct {
@@ -59,117 +71,43 @@ type Users struct {
 	Next  *string `json:"next"`
 }
 
-type Video struct {
-	ID          string       `json:"id"`
-	Owner       *User        `json:"owner"`
-	URL         *string      `json:"url"`
-	Tags        []string     `json:"tags"`
-	Thumbnails  []*Thumbnail `json:"thumbnails"`
-	Description *string      `json:"description"`
-	NumLikes    *int         `json:"numLikes"`
-	NumComments *int         `json:"numComments"`
-}
-
-type VideoEditInput struct {
-	Description *string `json:"description"`
-}
-
-type VideoMutationResponse struct {
-	Code    int    `json:"code"`
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	User    *Video `json:"user"`
-}
-
-func (VideoMutationResponse) IsMutationResponse() {}
-
-type Videos struct {
-	Videos []*Videos `json:"videos"`
-	Next   *string   `json:"next"`
-}
-
-type Gender string
+type GameType string
 
 const (
-	GenderMale      Gender = "MALE"
-	GenderFemale    Gender = "FEMALE"
-	GenderNonbinary Gender = "NONBINARY"
+	GameTypeJanggi GameType = "JANGGI"
+	GameTypeShogi  GameType = "SHOGI"
 )
 
-var AllGender = []Gender{
-	GenderMale,
-	GenderFemale,
-	GenderNonbinary,
+var AllGameType = []GameType{
+	GameTypeJanggi,
+	GameTypeShogi,
 }
 
-func (e Gender) IsValid() bool {
+func (e GameType) IsValid() bool {
 	switch e {
-	case GenderMale, GenderFemale, GenderNonbinary:
+	case GameTypeJanggi, GameTypeShogi:
 		return true
 	}
 	return false
 }
 
-func (e Gender) String() string {
+func (e GameType) String() string {
 	return string(e)
 }
 
-func (e *Gender) UnmarshalGQL(v interface{}) error {
+func (e *GameType) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = Gender(str)
+	*e = GameType(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Gender", str)
+		return fmt.Errorf("%s is not a valid GameType", str)
 	}
 	return nil
 }
 
-func (e Gender) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type Preference string
-
-const (
-	PreferenceStraight Preference = "STRAIGHT"
-	PreferenceGay      Preference = "GAY"
-	PreferenceTrans    Preference = "TRANS"
-)
-
-var AllPreference = []Preference{
-	PreferenceStraight,
-	PreferenceGay,
-	PreferenceTrans,
-}
-
-func (e Preference) IsValid() bool {
-	switch e {
-	case PreferenceStraight, PreferenceGay, PreferenceTrans:
-		return true
-	}
-	return false
-}
-
-func (e Preference) String() string {
-	return string(e)
-}
-
-func (e *Preference) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = Preference(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Preference", str)
-	}
-	return nil
-}
-
-func (e Preference) MarshalGQL(w io.Writer) {
+func (e GameType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

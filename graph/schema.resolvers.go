@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pafkiuq/backend/graph/generated"
-	"github.com/pafkiuq/backend/graph/model"
+	"github.com/garlicgarrison/chessvars-backend/graph/generated"
+	"github.com/garlicgarrison/chessvars-backend/graph/model"
 )
 
 // UserEdit is the resolver for the userEdit field.
@@ -21,18 +21,13 @@ func (r *mutationResolver) UserDelete(ctx context.Context) (*model.BasicMutation
 	panic(fmt.Errorf("not implemented"))
 }
 
-// LikeVideo is the resolver for the likeVideo field.
-func (r *mutationResolver) LikeVideo(ctx context.Context, id string, like bool) (*model.BasicMutationResponse, error) {
+// GameCreate is the resolver for the gameCreate field.
+func (r *mutationResolver) GameCreate(ctx context.Context, typeArg model.GameType) (*model.GameMutationResponse, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id *string) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-// Feed is the resolver for the feed field.
-func (r *queryResolver) Feed(ctx context.Context) (*model.Videos, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

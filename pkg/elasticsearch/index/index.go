@@ -13,7 +13,7 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
-	"github.com/pafkiuq/backend/pkg/net/http/httputil"
+	"github.com/garlicgarrison/chessvars-backend/pkg/net/http/httputil"
 	"go.uber.org/zap"
 )
 

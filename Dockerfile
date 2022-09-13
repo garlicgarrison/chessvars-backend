@@ -5,7 +5,7 @@ RUN apt-get update \
         git \
         make
 
-ENV APP_DIR $GOPATH/src/github.com/pafkiuq/backend
+ENV APP_DIR $GOPATH/src/github.com/garlicgarrison/chessvars-backend
 WORKDIR ${APP_DIR}
 
 COPY . ${APP_DIR}
@@ -17,5 +17,5 @@ FROM alpine:latest
 ENV PORT=8080
 EXPOSE $PORT
 
-COPY --from=builder /go/src/github.com/pafkiuq/backend/bin/backend /
+COPY --from=builder /go/src/github.com/garlicgarrison/chessvars-backend/bin/backend /
 ENTRYPOINT [ "/backend" ]

@@ -1,6 +1,6 @@
 .PHONY: gen build run test run-docker test-docker
 
-IMAGE_NAME:=pafkiuq/backend
+IMAGE_NAME:=garlicgarrison/chessvars-backend
 
 gen:
 	go run github.com/99designs/gqlgen generate
