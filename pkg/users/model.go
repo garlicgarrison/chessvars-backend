@@ -2,14 +2,6 @@ package users
 
 import "github.com/pafkiuq/backend/pkg/format"
 
-type Preference string
-
-const (
-	PREF_STRAIGHT Preference = "STRAIGHT"
-	PREF_GAY      Preference = "GAY"
-	PREF_TRANS    Preference = "TRANS"
-)
-
 type Gender string
 
 const (
@@ -20,9 +12,8 @@ const (
 )
 
 type UserDocument struct {
-	UserID      format.UserID `firestore:"user_id"`
-	Username    string        `firestore:"username"`
-	Bio         string        `firestore:"bio"`
-	Preferences []Preference  `firestore:"preferences"`
-	Gender      Gender        `firestore:"gender"`
+	UserID   format.UserID `firestore:"user_id"`
+	Username string        `firestore:"username"`
+	Gender   Gender        `firestore:"gender"`
+	Elo      int           `firestore:"elo"`
 }

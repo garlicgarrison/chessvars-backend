@@ -18,7 +18,7 @@ type Mutation {
   userEdit(input: UserEditInput!): UserMutationResponse!
   userDelete: BasicMutationResponse!
 
-  likeVideo(id: ID!, like: Boolean!): BasicMutationResponse!
+  gameCreate(): GameMutationResponse!
 }
 
 # type Subscription {
@@ -26,29 +26,27 @@ type Mutation {
 # }
 
 # USERS
-enum Preference {
-  STRAIGHT
-  GAY
-  TRANS
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  NONBINARY
-}
-
 type User {
   id: ID!
   exists: Boolean
   username: String
-  bio: String
-  preferences: [Preference!]
+  elo: Int
 }
 
 type Users {
   users: [User]
   next: String
+}
+
+type Game {
+  id: ID!
+  moves: [String!]
+  playerOne: User
+  playerTwo: User
+  winner: User
+  draw: Boolean
+  aborted: Boolean
+  timestamp: String
 }
 
 input Pagination {
@@ -59,8 +57,6 @@ input Pagination {
 input UserEditInput {
   username: String
   bio: String
-  gender: Gender
-  preferences: [Preference!]
 }
 
 interface MutationResponse {
@@ -82,36 +78,9 @@ type UserMutationResponse implements MutationResponse {
   user: User
 }
 
-#VIDEOS
-type Thumbnail {
-  size: Int
-  url: String
-}
-
-type Video {
-  id: ID!
-  owner: User
-  url: String
-  tags: [String!]
-  thumbnails: [Thumbnail!]
-  description: String
-
-  numLikes: Int
-  numComments: Int
-}
-
-type Videos {
-  videos: [Videos]
-  next: String
-}
-
-type VideoMutationResponse implements MutationResponse {
+type GameMutationResponse implements MutationResponse {
   code: Int!
   success: Boolean!
   message: String!
-  user: Video
-}
-
-input VideoEditInput {
-  description: String
+  game: Game
 }

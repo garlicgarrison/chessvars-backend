@@ -18,7 +18,6 @@ import (
 	"github.com/pafkiuq/backend/middleware"
 	"github.com/pafkiuq/backend/pkg/firestore"
 	"github.com/pafkiuq/backend/pkg/users"
-	"github.com/pafkiuq/backend/pkg/videos"
 )
 
 type Config struct {
@@ -100,7 +99,6 @@ func main() {
 		)
 	})
 	mux.Handle("/graphql", middleware.NewAuth(client, graphql))
-	mux.HandleFunc("/upload/embedded", videos.HandleUploadEmbedded)
 
 	/* end section: register routes */
 

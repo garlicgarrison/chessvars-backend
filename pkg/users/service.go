@@ -37,7 +37,6 @@ func populateUser(user *UserDocument) *model.User {
 		ID:       user.UserID.String(),
 		Exists:   &exists,
 		Username: &user.Username,
-		Bio:      &user.Bio,
 	}
 }
 
@@ -112,10 +111,6 @@ func (s *Service) EditUser(ctx context.Context, userID format.UserID, input mode
 			user.Username = username
 		}
 
-		if input.Bio != nil {
-			user.Bio = *input.Bio
-		}
-
 		if input.Gender != nil {
 			switch *input.Gender {
 			case model.GenderMale:
@@ -126,20 +121,6 @@ func (s *Service) EditUser(ctx context.Context, userID format.UserID, input mode
 				user.Gender = GENDER_NONBINARY
 			default:
 				user.Gender = GENDER_UNKNOWN
-			}
-		}
-
-		if input.Preferences != nil {
-			user.Preferences = []Preference{}
-			for _, pref := range input.Preferences {
-				switch pref {
-				case model.PreferenceStraight:
-					user.Preferences = append(user.Preferences, PREF_STRAIGHT)
-				case model.PreferenceGay:
-					user.Preferences = append(user.Preferences, PREF_GAY)
-				case model.PreferenceTrans:
-					user.Preferences = append(user.Preferences, PREF_TRANS)
-				}
 			}
 		}
 
