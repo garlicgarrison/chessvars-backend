@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/garlicgarrison/chessvars-backend/graph/model"
 	"github.com/garlicgarrison/chessvars-backend/middleware"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
+	"github.com/garlicgarrison/chessvars-backend/pkg/game"
+	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 )
 
 // This file will not be regenerated automatically.
@@ -18,19 +19,19 @@ func GetAuthUserID(ctx context.Context) (format.UserID, bool) {
 	return userID, ok
 }
 
-type UsersService interface {
-	CreateUser(context.Context, format.UserID) (*model.User, error)
-	GetUser(context.Context, format.UserID) (*model.User, error)
-	EditUser(context.Context, format.UserID, model.UserEditInput) (*model.User, error)
-	DeleteUser(context.Context, format.UserID) error
-}
-
 type Config struct {
-	UsersService
+	UsersService users.Service
+	GameService  game.Service
 }
 
 type Resolver struct {
-	UsersService
+	UsersService users.Service
+	GameService  game.Service
+}
+
+type Services struct {
+	Users users.Service
+	Game  game.Service
 }
 
 func NewResolver(cfg Config) (*Resolver, error) {

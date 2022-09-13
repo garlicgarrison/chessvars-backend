@@ -15,6 +15,10 @@ type Move struct {
 	Timestamp time.Time    `firestore:"timestamp"`
 }
 
+func (m MoveNotation) String() string {
+	return string(m)
+}
+
 type GameType string
 
 const (

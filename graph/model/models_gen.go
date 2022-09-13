@@ -21,14 +21,14 @@ type BasicMutationResponse struct {
 func (BasicMutationResponse) IsMutationResponse() {}
 
 type Game struct {
-	ID        string   `json:"id"`
-	Moves     []string `json:"moves"`
-	PlayerOne *User    `json:"playerOne"`
-	PlayerTwo *User    `json:"playerTwo"`
-	Winner    *User    `json:"winner"`
-	Draw      *bool    `json:"draw"`
-	Aborted   *bool    `json:"aborted"`
-	Timestamp *string  `json:"timestamp"`
+	ID        string  `json:"id"`
+	Moves     []*Move `json:"moves"`
+	PlayerOne *User   `json:"playerOne"`
+	PlayerTwo *User   `json:"playerTwo"`
+	Winner    *User   `json:"winner"`
+	Draw      *bool   `json:"draw"`
+	Aborted   *bool   `json:"aborted"`
+	Timestamp *string `json:"timestamp"`
 }
 
 type GameMutationResponse struct {
@@ -39,6 +39,11 @@ type GameMutationResponse struct {
 }
 
 func (GameMutationResponse) IsMutationResponse() {}
+
+type Move struct {
+	Move      *string `json:"move"`
+	Timestamp *string `json:"timestamp"`
+}
 
 type Pagination struct {
 	Cursor *string `json:"cursor"`

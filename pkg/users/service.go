@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/garlicgarrison/chessvars-backend/graph/model"
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 	"google.golang.org/grpc/codes"
@@ -17,50 +16,51 @@ type Config struct {
 	Firestore firestore.Firestore
 }
 
-type Service struct {
+type service struct {
 	fs firestore.Firestore
 }
 
 const DEFAULT_ELO int = 1200
 
-func NewService(cfg Config) (*Service, error) {
+func NewService(cfg Config) (Service, error) {
 	if cfg.Firestore == nil {
 		return nil, errors.New("firestore required")
 	}
 
-	return &Service{
+	return &service{
 		fs: cfg.Firestore,
 	}, nil
 }
 
-func populateUser(user *UserDocument) *model.User {
-	exists := user != nil
-	return &model.User{
-		ID:       user.UserID.String(),
-		Exists:   &exists,
-		Username: &user.Username,
+func populateUser(user *UserDocument) *GetUserResponse {
+	return &GetUserResponse{
+		UserID:   user.UserID,
+		Username: user.Username,
+		Elo:      user.Elo,
 	}
 }
 
-func (s *Service) CreateUser(ctx context.Context, userID format.UserID) (*model.User, error) {
+func (s *service) CreateUser(ctx context.Context, request CreateUserRequest) (*GetUserResponse, error) {
 	user := UserDocument{
-		UserID: userID,
+		UserID: request.UserID,
 		Elo:    DEFAULT_ELO,
 	}
 
-	_, err := s.getUserRef(userID).Create(ctx, user)
+	_, err := s.getUserRef(request.UserID).Create(ctx, user)
 	if err != nil {
 		if status.Code(err) != codes.AlreadyExists {
 			return nil, err
 		}
-		return s.GetUser(ctx, userID)
+		return s.GetUser(ctx, GetUserRequest{
+			UserID: request.UserID,
+		})
 	}
 
 	return populateUser(&user), nil
 }
 
-func (s *Service) GetUser(ctx context.Context, userID format.UserID) (*model.User, error) {
-	userSnap, err := s.getUserRef(userID).Get(ctx)
+func (s *service) GetUser(ctx context.Context, request GetUserRequest) (*GetUserResponse, error) {
+	userSnap, err := s.getUserRef(request.UserID).Get(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (s *Service) GetUser(ctx context.Context, userID format.UserID) (*model.Use
 	return populateUser(&user), nil
 }
 
-func (s *Service) EditUser(ctx context.Context, userID format.UserID, input model.UserEditInput) (*model.User, error) {
+func (s *service) EditUser(ctx context.Context, request EditUserRequest) (*EditUserResponse, error) {
 	verifyUsername := func(username string) (string, error) {
 		if username == "" {
 			return "", errors.New("invalid empty username")
@@ -95,7 +95,7 @@ func (s *Service) EditUser(ctx context.Context, userID format.UserID, input mode
 
 	var user UserDocument
 	err := s.fs.RunTransaction(ctx, func(ctx context.Context, t *firestore.Transaction) error {
-		userSnap, err := t.Get(s.getUserRef(userID))
+		userSnap, err := t.Get(s.getUserRef(request.UserID))
 		if err != nil {
 			return err
 		}
@@ -105,8 +105,8 @@ func (s *Service) EditUser(ctx context.Context, userID format.UserID, input mode
 			return err
 		}
 
-		if input.Username != nil {
-			username, err := verifyUsername(*input.Username)
+		if request.Username != nil {
+			username, err := verifyUsername(*request.Username)
 			if err != nil {
 				return err
 			}
@@ -114,7 +114,7 @@ func (s *Service) EditUser(ctx context.Context, userID format.UserID, input mode
 			user.Username = username
 		}
 
-		return t.Set(s.getUserRef(userID), user)
+		return t.Set(s.getUserRef(request.UserID), user)
 	})
 	if err != nil {
 		return nil, err
@@ -123,6 +123,6 @@ func (s *Service) EditUser(ctx context.Context, userID format.UserID, input mode
 	return populateUser(&user), nil
 }
 
-func (s *Service) DeleteUser(ctx context.Context, userID format.UserID) error {
+func (s *service) DeleteUser(ctx context.Context, userID format.UserID) error {
 	return nil
 }

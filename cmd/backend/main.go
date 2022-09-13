@@ -16,6 +16,7 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
 	"github.com/garlicgarrison/chessvars-backend/middleware"
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
+	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -69,8 +70,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	game, err := game.NewService(game.Config{
+		Firestore: fs,
+	})
+	if err != nil {
+		fmt.Printf("failed to init users service: %s", err)
+		os.Exit(1)
+	}
+
 	resolver, err := graph.NewResolver(graph.Config{
 		UsersService: users,
+		GameService:  game,
 	})
 	if err != nil {
 		fmt.Printf("failed to init resolver: %s\n", err)
