@@ -95,6 +95,15 @@ func (g *Game) Aborted(ctx context.Context) (bool, error) {
 	return game.Aborted, nil
 }
 
+func (g *Game) TimeLimit(ctx context.Context) (int, error) {
+	game, err := g.getter.Call(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(game.TimeLimit), nil
+}
+
 func (g *Game) Timestamp(ctx context.Context) (string, error) {
 	game, err := g.getter.Call(ctx)
 	if err != nil {

@@ -22,3 +22,21 @@ func NewMove(services *Services, move *game.MoveResponse) *Move {
 		}),
 	}
 }
+
+func (m *Move) Move(ctx context.Context) (string, error) {
+	move, err := m.getter.Call(ctx)
+	if err != nil {
+		return "", nil
+	}
+
+	return move.Move.String(), nil
+}
+
+func (m *Move) Timestamp(ctx context.Context) (string, error) {
+	move, err := m.getter.Call(ctx)
+	if err != nil {
+		return "", nil
+	}
+
+	return move.Timestamp.String(), nil
+}
