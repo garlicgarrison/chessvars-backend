@@ -3,20 +3,18 @@ package resolver
 import (
 	"context"
 
-	"github.com/garlicgarrison/chessvars-backend/graph"
-	"github.com/garlicgarrison/chessvars-backend/graph/model"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 )
 
 type Game struct {
-	services *graph.Services
+	services *Services
 	gameID   format.GameID
 
 	getter[*game.Game, func(context.Context) (*game.Game, error)]
 }
 
-func NewGame(services *graph.Services, gameID format.GameID) *Game {
+func NewGame(services *Services, gameID format.GameID) *Game {
 	return &Game{
 		services: services,
 		gameID:   gameID,
@@ -38,21 +36,15 @@ func (g *Game) ID(ctx context.Context) (string, error) {
 	return g.gameID.String(), nil
 }
 
-func (g *Game) Moves(ctx context.Context) ([]*model.Move, error) {
+func (g *Game) Moves(ctx context.Context) ([]*Move, error) {
 	game, err := g.getter.Call(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	toRet := make([]*model.Move, 0)
+	toRet := make([]*Move, 0)
 	for _, move := range game.Moves {
-		timestamp := move.Timestamp.String()
-		m := move.Move.String()
-
-		toRet = append(toRet, &model.Move{
-			Move:      &m,
-			Timestamp: &timestamp,
-		})
+		toRet = append(toRet, NewMove(g.services, &move))
 	}
 
 	return toRet, nil

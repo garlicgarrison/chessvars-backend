@@ -13,6 +13,17 @@ enum GameType {
   SHOGI
 }
 
+enum TimeLimit {
+  BULLET
+  BLITZ
+  BLITZ2
+  RAPID
+  RAPID1
+  RAPID2
+  RAPID3
+  RAPID4
+}
+
 type Query {
   user(id: ID): User
 }
@@ -49,6 +60,7 @@ type Game {
   winner: User
   draw: Boolean
   aborted: Boolean
+  timeLimit: TimeLimit
   timestamp: String
 }
 

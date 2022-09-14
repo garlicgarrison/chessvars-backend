@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"github.com/garlicgarrison/chessvars-backend/graph/resolver"
 )
 
 type MutationResponse interface {
@@ -20,41 +22,18 @@ type BasicMutationResponse struct {
 
 func (BasicMutationResponse) IsMutationResponse() {}
 
-type Game struct {
-	ID        string  `json:"id"`
-	Moves     []*Move `json:"moves"`
-	PlayerOne *User   `json:"playerOne"`
-	PlayerTwo *User   `json:"playerTwo"`
-	Winner    *User   `json:"winner"`
-	Draw      *bool   `json:"draw"`
-	Aborted   *bool   `json:"aborted"`
-	Timestamp *string `json:"timestamp"`
-}
-
 type GameMutationResponse struct {
-	Code    int    `json:"code"`
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	Game    *Game  `json:"game"`
+	Code    int            `json:"code"`
+	Success bool           `json:"success"`
+	Message string         `json:"message"`
+	Game    *resolver.Game `json:"game"`
 }
 
 func (GameMutationResponse) IsMutationResponse() {}
 
-type Move struct {
-	Move      *string `json:"move"`
-	Timestamp *string `json:"timestamp"`
-}
-
 type Pagination struct {
 	Cursor *string `json:"cursor"`
 	Limit  *int    `json:"limit"`
-}
-
-type User struct {
-	ID       string  `json:"id"`
-	Exists   *bool   `json:"exists"`
-	Username *string `json:"username"`
-	Elo      *int    `json:"elo"`
 }
 
 type UserEditInput struct {
@@ -63,17 +42,17 @@ type UserEditInput struct {
 }
 
 type UserMutationResponse struct {
-	Code    int    `json:"code"`
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	User    *User  `json:"user"`
+	Code    int            `json:"code"`
+	Success bool           `json:"success"`
+	Message string         `json:"message"`
+	User    *resolver.User `json:"user"`
 }
 
 func (UserMutationResponse) IsMutationResponse() {}
 
 type Users struct {
-	Users []*User `json:"users"`
-	Next  *string `json:"next"`
+	Users []*resolver.User `json:"users"`
+	Next  *string          `json:"next"`
 }
 
 type GameType string
@@ -114,5 +93,58 @@ func (e *GameType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e GameType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TimeLimit string
+
+const (
+	TimeLimitBullet TimeLimit = "BULLET"
+	TimeLimitBlitz  TimeLimit = "BLITZ"
+	TimeLimitBlitz2 TimeLimit = "BLITZ2"
+	TimeLimitRapid  TimeLimit = "RAPID"
+	TimeLimitRapid1 TimeLimit = "RAPID1"
+	TimeLimitRapid2 TimeLimit = "RAPID2"
+	TimeLimitRapid3 TimeLimit = "RAPID3"
+	TimeLimitRapid4 TimeLimit = "RAPID4"
+)
+
+var AllTimeLimit = []TimeLimit{
+	TimeLimitBullet,
+	TimeLimitBlitz,
+	TimeLimitBlitz2,
+	TimeLimitRapid,
+	TimeLimitRapid1,
+	TimeLimitRapid2,
+	TimeLimitRapid3,
+	TimeLimitRapid4,
+}
+
+func (e TimeLimit) IsValid() bool {
+	switch e {
+	case TimeLimitBullet, TimeLimitBlitz, TimeLimitBlitz2, TimeLimitRapid, TimeLimitRapid1, TimeLimitRapid2, TimeLimitRapid3, TimeLimitRapid4:
+		return true
+	}
+	return false
+}
+
+func (e TimeLimit) String() string {
+	return string(e)
+}
+
+func (e *TimeLimit) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TimeLimit(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TimeLimit", str)
+	}
+	return nil
+}
+
+func (e TimeLimit) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

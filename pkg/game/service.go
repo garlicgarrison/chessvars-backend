@@ -28,12 +28,36 @@ func NewService(cfg Config) (Service, error) {
 	}, nil
 }
 
+func (s *service) populateGame(game *GameDocument) *Game {
+	moves := make([]MoveResponse, 0)
+	for _, m := range game.Moves {
+		moves = append(moves, MoveResponse{
+			Move:      m.Move,
+			Timestamp: m.Timestamp,
+		})
+	}
+
+	return &Game{
+		ID:        game.ID,
+		WinnerID:  game.WinnerID,
+		PlayerOne: game.PlayerOne,
+		PlayerTwo: game.PlayerTwo,
+		Moves:     moves,
+		Draw:      game.Draw,
+		Aborted:   game.Aborted,
+		TimeLimit: game.TimeLimit,
+		Type:      game.Type,
+		Timestamp: game.Timestamp,
+	}
+}
+
 func (s *service) CreateGame(ctx context.Context, request CreateGameRequest) (*CreateGameResponse, error) {
 	gameID := format.NewGameID()
 	now := time.Now()
 
 	gameDoc := GameDocument{
 		ID:        gameID,
+		TimeLimit: request.TimeLimit,
 		Timestamp: now,
 	}
 

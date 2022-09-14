@@ -13,16 +13,22 @@ type Service interface {
 	EditGame(context.Context, EditGameRequest) (*EditGameResponse, error)
 }
 
+type MoveResponse struct {
+	Move      MoveNotation `json:"move"`
+	Timestamp time.Time    `json:"timestamp"`
+}
+
 type Game struct {
-	ID        format.GameID `json:"game_id"`
-	WinnerID  format.UserID `json:"winner_id"`
-	PlayerOne format.UserID `json:"player_one"`
-	PlayerTwo format.UserID `json:"player_two"`
-	Moves     []Move        `json:"moves"`
-	Draw      bool          `json:"draw"`
-	Aborted   bool          `json:"aborted"`
-	Type      GameType      `json:"type"`
-	Timestamp time.Time     `json:"timestamp"`
+	ID        format.GameID  `json:"game_id"`
+	WinnerID  format.UserID  `json:"winner_id"`
+	PlayerOne format.UserID  `json:"player_one"`
+	PlayerTwo format.UserID  `json:"player_two"`
+	Moves     []MoveResponse `json:"moves"`
+	Draw      bool           `json:"draw"`
+	Aborted   bool           `json:"aborted"`
+	TimeLimit TimeLimit      `json:"time_limit"`
+	Type      GameType       `json:"type"`
+	Timestamp time.Time      `json:"timestamp"`
 }
 
 type GetGameRequest struct {
@@ -32,8 +38,9 @@ type GetGameRequest struct {
 type GetGameResponse = Game
 
 type CreateGameRequest struct {
-	UserID format.UserID `json:"user_id"`
-	Type   GameType      `json:"type"`
+	UserID    format.UserID `json:"user_id"`
+	TimeLimit TimeLimit     `json:"time_limit"`
+	Type      GameType      `json:"type"`
 }
 
 type CreateGameResponse = Game

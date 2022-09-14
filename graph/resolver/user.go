@@ -3,7 +3,6 @@ package resolver
 import (
 	"context"
 
-	"github.com/garlicgarrison/chessvars-backend/graph"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 	"google.golang.org/grpc/codes"
@@ -11,13 +10,13 @@ import (
 )
 
 type User struct {
-	services *graph.Services
+	services *Services
 	userID   format.UserID
 
 	getter[*users.User, func(context.Context) (*users.User, error)]
 }
 
-func NewUser(services *graph.Services, userID format.UserID) *User {
+func NewUser(services *Services, userID format.UserID) *User {
 	return &User{
 		services: services,
 		userID:   userID,
@@ -30,7 +29,7 @@ func NewUser(services *graph.Services, userID format.UserID) *User {
 					return nil, err
 				}
 
-				authUserID, ok := graph.GetAuthUserID(ctx)
+				authUserID, ok := GetAuthUserID(ctx)
 				if !ok || authUserID != userID {
 					return nil, err
 				}
@@ -45,7 +44,7 @@ func NewUser(services *graph.Services, userID format.UserID) *User {
 	}
 }
 
-func NewUserWithData(services *graph.Services, data *users.User) *User {
+func NewUserWithData(services *Services, data *users.User) *User {
 	return &User{
 		services: services,
 		userID:   data.UserID,

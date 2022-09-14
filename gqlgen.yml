@@ -56,3 +56,6 @@ models:
   Game:
     model:
       - github.com/garlicgarrison/chessvars-backend/graph/resolver.Game
+  Move:
+    model:
+      - github.com/garlicgarrison/chessvars-backend/graph/resolver.Move

@@ -32,18 +32,16 @@ func NewService(cfg Config) (Service, error) {
 	}, nil
 }
 
-func populateUser(user *UserDocument) *GetUserResponse {
+func populateUser(user *UserDocument) *User {
 	return &GetUserResponse{
 		UserID:   user.UserID,
 		Username: user.Username,
-		Elo:      user.Elo,
 	}
 }
 
-func (s *service) CreateUser(ctx context.Context, request CreateUserRequest) (*GetUserResponse, error) {
+func (s *service) CreateUser(ctx context.Context, request CreateUserRequest) (*CreateUserResponse, error) {
 	user := UserDocument{
 		UserID: request.UserID,
-		Elo:    DEFAULT_ELO,
 	}
 
 	_, err := s.getUserRef(request.UserID).Create(ctx, user)
