@@ -2,15 +2,18 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/garlicgarrison/chessvars-backend/graph"
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
@@ -18,13 +21,16 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/middleware"
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
+	"github.com/garlicgarrison/chessvars-backend/pkg/redis"
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
+	"github.com/gorilla/websocket"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
-	Port    int    `envconfig:"PORT" default:"8080"`
-	Address string `envconfig:"ADDRESS" default:"http://localhost:8080"`
+	Port      int    `envconfig:"PORT" default:"8080"`
+	Address   string `envconfig:"ADDRESS" default:"http://localhost:8080"`
+	RedisAddr string `envconfig:"REDIS_ADDRESS" default:"localhost:6379"`
 
 	Firestore firestore.Config
 }
@@ -58,6 +64,12 @@ func main() {
 		log.Printf("error in intitializing firestore: %s \n", err)
 		os.Exit(1)
 	}
+
+	redis, err := redis.NewRedisClient(cfg.RedisAddr)
+	if !errors.Is(err, nil) {
+		log.Fatalln(err)
+	}
+	defer redis.Close()
 
 	/* end section: third party */
 
@@ -97,6 +109,17 @@ func main() {
 			},
 		),
 	)
+
+	graphql.AddTransport(&transport.Websocket{
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		},
+		KeepAlivePingInterval: 10 * time.Second,
+	})
 
 	/* end section: initialize server */
 
