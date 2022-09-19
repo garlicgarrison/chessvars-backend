@@ -1,6 +1,9 @@
 package game
 
 import (
+	"bytes"
+	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
@@ -8,7 +11,7 @@ import (
 
 type MoveNotation string
 
-const MOVE_REGEX string = "[a-i][(0-9)|10][a-i][(0-9)|10]"
+const MOVE_REGEX string = "^[a-i]([1-9]|10)[a-i]([1-9]|10)$"
 
 type Move struct {
 	Move      MoveNotation `firestore:"move"`
@@ -17,6 +20,18 @@ type Move struct {
 
 func (m MoveNotation) String() string {
 	return string(m)
+}
+
+func ParseMoveNotation(smove string) (MoveNotation, error) {
+	ok, err := regexp.Match(MOVE_REGEX, bytes.NewBufferString(smove).Bytes())
+	if err != nil {
+		return "", err
+	}
+	if !ok {
+		return "", fmt.Errorf("not a valid move")
+	}
+
+	return MoveNotation(smove), nil
 }
 
 type GameType string

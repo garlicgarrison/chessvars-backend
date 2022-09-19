@@ -83,6 +83,11 @@ func (r *mutationResolver) GameCreate(ctx context.Context, typeArg model.GameTyp
 	}, nil
 }
 
+// GameMove is the resolver for the gameMove field.
+func (r *mutationResolver) GameMove(ctx context.Context, id string, move string) (*model.GameMutationResponse, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id *string) (*resolver.User, error) {
 	if id != nil {
@@ -104,7 +109,24 @@ func (r *queryResolver) User(ctx context.Context, id *string) (*resolver.User, e
 
 // OnMoveNew is the resolver for the onMoveNew field.
 func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan *resolver.Move, error) {
-	panic(fmt.Errorf("not implemented"))
+	gameID, err := format.ParseGameID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	mc := make(chan *resolver.Move, 1)
+	r.mutex.Lock()
+	r.moveChannels[gameID] = mc
+	r.mutex.Unlock()
+
+	go func() {
+		<-ctx.Done()
+		r.mutex.Lock()
+		delete(r.moveChannels, gameID)
+		r.mutex.Unlock()
+	}()
+
+	return mc, nil
 }
 
 // Game returns generated.GameResolver implementation.

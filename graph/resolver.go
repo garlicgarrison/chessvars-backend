@@ -1,7 +1,10 @@
 package graph
 
 import (
+	"sync"
+
 	"github.com/garlicgarrison/chessvars-backend/graph/resolver"
+	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 )
 
 // This file will not be regenerated automatically.
@@ -12,7 +15,16 @@ type Config struct {
 }
 
 type Resolver struct {
+	// backend services
 	*resolver.Services
+
+	/*
+		Key: gameID
+		Value: *resolver.Move
+	*/
+	moveChannels map[format.GameID]chan *resolver.Move
+
+	mutex sync.Mutex
 }
 
 func NewResolver(cfg Config) (*Resolver, error) {
