@@ -32,6 +32,16 @@ func NewGame(services *Services, gameID format.GameID) *Game {
 	}
 }
 
+func NewGameWithData(services *Services, data *game.Game) *Game {
+	return &Game{
+		services: services,
+		gameID:   data.ID,
+		getter: NewGetter(func(ctx context.Context) (*game.Game, error) {
+			return data, nil
+		}),
+	}
+}
+
 func (g *Game) ID(ctx context.Context) (string, error) {
 	return g.gameID.String(), nil
 }

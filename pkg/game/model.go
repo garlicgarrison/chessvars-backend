@@ -33,13 +33,13 @@ func (g GameType) String() string {
 type TimeLimit int
 
 const (
-	BULLET int = 1
-	BLITZ  int = 3
-	BLITZ2 int = 5
-	RAPID  int = 10
-	RAPID2 int = 15
-	RAPID3 int = 20
-	RAPID4 int = 30
+	BULLET TimeLimit = 1
+	BLITZ  TimeLimit = 3
+	BLITZ2 TimeLimit = 5
+	RAPID  TimeLimit = 10
+	RAPID2 TimeLimit = 15
+	RAPID3 TimeLimit = 20
+	RAPID4 TimeLimit = 30
 )
 
 // NOTE: In janggi, the game always starts with red

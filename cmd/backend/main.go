@@ -14,6 +14,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/garlicgarrison/chessvars-backend/graph"
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
+	"github.com/garlicgarrison/chessvars-backend/graph/resolver"
 	"github.com/garlicgarrison/chessvars-backend/middleware"
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
@@ -79,8 +80,10 @@ func main() {
 	}
 
 	resolver, err := graph.NewResolver(graph.Config{
-		UsersService: users,
-		GameService:  game,
+		Services: &resolver.Services{
+			Users: users,
+			Game:  game,
+		},
 	})
 	if err != nil {
 		fmt.Printf("failed to init resolver: %s\n", err)

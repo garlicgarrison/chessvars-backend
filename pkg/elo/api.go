@@ -9,7 +9,7 @@ import (
 
 type Service interface {
 	CreateElo(context.Context, CreateEloRequest) (*CreateEloResponse, error)
-	GetGame(context.Context, GetEloRequest) (*GetEloResponse, error)
+	GetElo(context.Context, GetEloRequest) (*GetEloResponse, error)
 	UpdateElo(context.Context, UpdateEloRequest) (*UpdateEloResponse, error)
 }
 

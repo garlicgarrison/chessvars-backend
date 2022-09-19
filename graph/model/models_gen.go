@@ -103,7 +103,6 @@ const (
 	TimeLimitBlitz  TimeLimit = "BLITZ"
 	TimeLimitBlitz2 TimeLimit = "BLITZ2"
 	TimeLimitRapid  TimeLimit = "RAPID"
-	TimeLimitRapid1 TimeLimit = "RAPID1"
 	TimeLimitRapid2 TimeLimit = "RAPID2"
 	TimeLimitRapid3 TimeLimit = "RAPID3"
 	TimeLimitRapid4 TimeLimit = "RAPID4"
@@ -114,7 +113,6 @@ var AllTimeLimit = []TimeLimit{
 	TimeLimitBlitz,
 	TimeLimitBlitz2,
 	TimeLimitRapid,
-	TimeLimitRapid1,
 	TimeLimitRapid2,
 	TimeLimitRapid3,
 	TimeLimitRapid4,
@@ -122,7 +120,7 @@ var AllTimeLimit = []TimeLimit{
 
 func (e TimeLimit) IsValid() bool {
 	switch e {
-	case TimeLimitBullet, TimeLimitBlitz, TimeLimitBlitz2, TimeLimitRapid, TimeLimitRapid1, TimeLimitRapid2, TimeLimitRapid3, TimeLimitRapid4:
+	case TimeLimitBullet, TimeLimitBlitz, TimeLimitBlitz2, TimeLimitRapid, TimeLimitRapid2, TimeLimitRapid3, TimeLimitRapid4:
 		return true
 	}
 	return false
