@@ -84,8 +84,50 @@ func (r *mutationResolver) GameCreate(ctx context.Context, typeArg model.GameTyp
 }
 
 // GameMove is the resolver for the gameMove field.
-func (r *mutationResolver) GameMove(ctx context.Context, id string, move string) (*model.GameMutationResponse, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) GameMove(ctx context.Context, id string, move string, status *model.GameStatus) (*model.GameMutationResponse, error) {
+	userID, ok := resolver.GetAuthUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("could not validate user")
+	}
+
+	gameID, err := format.ParseGameID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	moveN, err := game.ParseMoveNotation(move)
+	if err != nil {
+		return nil, err
+	}
+
+	var gameStatus game.GameStatus
+	switch *status {
+	case model.GameStatusWin:
+		gameStatus = game.WIN
+	case model.GameStatusIngame:
+		gameStatus = game.INGAME
+	case model.GameStatusLoss:
+		gameStatus = game.LOSS
+	case model.GameStatusDraw:
+		gameStatus = game.DRAW
+	}
+
+	game, err := r.Services.Game.EditGame(ctx, game.EditGameRequest{
+		UserID: userID,
+		GameID: gameID,
+		Status: gameStatus,
+		Move:   moveN,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.GameMutationResponse{
+		Code:    int(codes.OK),
+		Success: true,
+		Message: "move was successfully added",
+		Game:    resolver.NewGameWithData(r.Services, game),
+	}, nil
 }
 
 // User is the resolver for the user field.

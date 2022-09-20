@@ -57,6 +57,15 @@ const (
 	RAPID4 TimeLimit = 30
 )
 
+type GameStatus string
+
+const (
+	INGAME GameStatus = "ingame"
+	WIN    GameStatus = "win"
+	LOSS   GameStatus = "loss"
+	DRAW   GameStatus = "draw"
+)
+
 // NOTE: In janggi, the game always starts with red
 type GameDocument struct {
 	ID        format.GameID `firestore:"id"`

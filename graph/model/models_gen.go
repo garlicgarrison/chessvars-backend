@@ -55,6 +55,51 @@ type Users struct {
 	Next  *string          `json:"next"`
 }
 
+type GameStatus string
+
+const (
+	GameStatusIngame GameStatus = "INGAME"
+	GameStatusWin    GameStatus = "WIN"
+	GameStatusLoss   GameStatus = "LOSS"
+	GameStatusDraw   GameStatus = "DRAW"
+)
+
+var AllGameStatus = []GameStatus{
+	GameStatusIngame,
+	GameStatusWin,
+	GameStatusLoss,
+	GameStatusDraw,
+}
+
+func (e GameStatus) IsValid() bool {
+	switch e {
+	case GameStatusIngame, GameStatusWin, GameStatusLoss, GameStatusDraw:
+		return true
+	}
+	return false
+}
+
+func (e GameStatus) String() string {
+	return string(e)
+}
+
+func (e *GameStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GameStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GameStatus", str)
+	}
+	return nil
+}
+
+func (e GameStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type GameType string
 
 const (

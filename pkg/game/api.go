@@ -47,7 +47,11 @@ type CreateGameResponse = Game
 
 type EditGameRequest struct {
 	UserID format.UserID `json:"user_id"`
+	GameID format.GameID `json:"game_id"`
 	Move   MoveNotation  `json:"move"`
+
+	/* For now, we trust the client on status of the game */
+	Status GameStatus `json:"status"`
 }
 
 type EditGameResponse = Game

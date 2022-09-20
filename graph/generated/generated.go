@@ -80,7 +80,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		GameCreate func(childComplexity int, typeArg model.GameType, limit model.TimeLimit) int
-		GameMove   func(childComplexity int, id string, move string) int
+		GameMove   func(childComplexity int, id string, move string, status *model.GameStatus) int
 		UserDelete func(childComplexity int) int
 		UserEdit   func(childComplexity int, input model.UserEditInput) int
 	}
@@ -120,7 +120,7 @@ type MutationResolver interface {
 	UserEdit(ctx context.Context, input model.UserEditInput) (*model.UserMutationResponse, error)
 	UserDelete(ctx context.Context) (*model.BasicMutationResponse, error)
 	GameCreate(ctx context.Context, typeArg model.GameType, limit model.TimeLimit) (*model.GameMutationResponse, error)
-	GameMove(ctx context.Context, id string, move string) (*model.GameMutationResponse, error)
+	GameMove(ctx context.Context, id string, move string, status *model.GameStatus) (*model.GameMutationResponse, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id *string) (*resolver.User, error)
@@ -292,7 +292,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.GameMove(childComplexity, args["id"].(string), args["move"].(string)), true
+		return e.complexity.Mutation.GameMove(childComplexity, args["id"].(string), args["move"].(string), args["status"].(*model.GameStatus)), true
 
 	case "Mutation.userDelete":
 		if e.complexity.Mutation.UserDelete == nil {
@@ -509,6 +509,13 @@ enum GameType {
   SHOGI
 }
 
+enum GameStatus {
+  INGAME
+  WIN
+  LOSS
+  DRAW
+}
+
 enum TimeLimit {
   BULLET
   BLITZ
@@ -528,7 +535,7 @@ type Mutation {
   userDelete: BasicMutationResponse!
 
   gameCreate(type: GameType!, limit: TimeLimit!): GameMutationResponse!
-  gameMove(id: ID!, move: String!): GameMutationResponse!
+  gameMove(id: ID!, move: String!, status: GameStatus): GameMutationResponse!
 }
 
 type Subscription {
@@ -653,6 +660,15 @@ func (ec *executionContext) field_Mutation_gameMove_args(ctx context.Context, ra
 		}
 	}
 	args["move"] = arg1
+	var arg2 *model.GameStatus
+	if tmp, ok := rawArgs["status"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+		arg2, err = ec.unmarshalOGameStatus2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameStatus(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["status"] = arg2
 	return args, nil
 }
 
@@ -1765,7 +1781,7 @@ func (ec *executionContext) _Mutation_gameMove(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().GameMove(rctx, fc.Args["id"].(string), fc.Args["move"].(string))
+		return ec.resolvers.Mutation().GameMove(rctx, fc.Args["id"].(string), fc.Args["move"].(string), fc.Args["status"].(*model.GameStatus))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5778,6 +5794,22 @@ func (ec *executionContext) marshalOGame2ᚖgithubᚗcomᚋgarlicgarrisonᚋches
 		return graphql.Null
 	}
 	return ec._Game(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOGameStatus2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameStatus(ctx context.Context, v interface{}) (*model.GameStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.GameStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOGameStatus2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameStatus(ctx context.Context, sel ast.SelectionSet, v *model.GameStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

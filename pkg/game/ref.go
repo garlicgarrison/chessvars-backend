@@ -5,10 +5,14 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 )
 
-func (s *service) getGamesRef(game GameType) *firestore.CollectionRef {
-	return s.fs.Collection(game.String())
+const (
+	FS_GAMES_COLL = "games"
+)
+
+func (s *service) getGamesRef() *firestore.CollectionRef {
+	return s.fs.Collection(FS_GAMES_COLL)
 }
 
-func (s *service) getGameRef(game GameType, gameID format.GameID) *firestore.DocumentRef {
-	return s.getGamesRef(game).Doc(gameID.String())
+func (s *service) getGameRef(gameID format.GameID) *firestore.DocumentRef {
+	return s.getGamesRef().Doc(gameID.String())
 }

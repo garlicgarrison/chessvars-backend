@@ -13,14 +13,6 @@ type Service interface {
 	UpdateElo(context.Context, UpdateEloRequest) (*UpdateEloResponse, error)
 }
 
-type GameStatus string
-
-const (
-	WIN  GameStatus = "win"
-	LOSS GameStatus = "loss"
-	DRAW GameStatus = "draw"
-)
-
 type CreateEloRequest struct {
 	UserID format.UserID `json:"user_id"`
 	Game   game.GameType `json:"game"`
@@ -32,10 +24,10 @@ type GetEloRequest struct {
 }
 
 type UpdateEloRequest struct {
-	UserID      format.UserID `json:"user_id"`
-	OtherUserID format.UserID `json:"other_user_id"`
-	Game        game.GameType `json:"game"`
-	Status      GameStatus    `json:"status"`
+	UserID      format.UserID   `json:"user_id"`
+	OtherUserID format.UserID   `json:"other_user_id"`
+	Game        game.GameType   `json:"game"`
+	Status      game.GameStatus `json:"status"`
 }
 
 type Elo struct {

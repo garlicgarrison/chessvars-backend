@@ -13,6 +13,13 @@ enum GameType {
   SHOGI
 }
 
+enum GameStatus {
+  INGAME
+  WIN
+  LOSS
+  DRAW
+}
+
 enum TimeLimit {
   BULLET
   BLITZ
@@ -32,7 +39,7 @@ type Mutation {
   userDelete: BasicMutationResponse!
 
   gameCreate(type: GameType!, limit: TimeLimit!): GameMutationResponse!
-  gameMove(id: ID!, move: String!): GameMutationResponse!
+  gameMove(id: ID!, move: String!, status: GameStatus): GameMutationResponse!
 }
 
 type Subscription {

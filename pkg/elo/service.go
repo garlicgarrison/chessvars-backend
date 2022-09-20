@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
+	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -127,7 +128,7 @@ func (s *service) UpdateElo(ctx context.Context, request UpdateEloRequest) (*Upd
 	var otherElo Elo
 	for e := range eloChan {
 		if e.err != nil {
-			err = fmt.Errorf("%sget elo error -- %s --", err, e)
+			err = fmt.Errorf("%sget elo error -- %s --", err, e.err)
 			break
 		}
 		if e.elo.UserID == request.UserID {
@@ -146,11 +147,11 @@ func (s *service) UpdateElo(ctx context.Context, request UpdateEloRequest) (*Upd
 
 	var s1 float64
 	switch request.Status {
-	case WIN:
+	case game.WIN:
 		s1 = 1
-	case LOSS:
+	case game.LOSS:
 		s1 = 0
-	case DRAW:
+	case game.DRAW:
 		s1 = 0.5
 	default:
 		s1 = 0
