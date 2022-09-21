@@ -38,7 +38,6 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Game() GameResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	Subscription() SubscriptionResolver
@@ -79,7 +78,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		GameCreate func(childComplexity int, typeArg model.GameType, limit model.TimeLimit) int
+		GameCreate func(childComplexity int, typeArg model.GameType, limit resolver.TimeLimit) int
 		GameJoin   func(childComplexity int, id string) int
 		GameMove   func(childComplexity int, id string, move string, status *model.GameStatus) int
 		UserDelete func(childComplexity int) int
@@ -87,6 +86,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Game func(childComplexity int, id string) int
 		User func(childComplexity int, id *string) int
 	}
 
@@ -114,18 +114,16 @@ type ComplexityRoot struct {
 	}
 }
 
-type GameResolver interface {
-	TimeLimit(ctx context.Context, obj *resolver.Game) (*model.TimeLimit, error)
-}
 type MutationResolver interface {
 	UserEdit(ctx context.Context, input model.UserEditInput) (*model.UserMutationResponse, error)
 	UserDelete(ctx context.Context) (*model.BasicMutationResponse, error)
-	GameCreate(ctx context.Context, typeArg model.GameType, limit model.TimeLimit) (*model.GameMutationResponse, error)
+	GameCreate(ctx context.Context, typeArg model.GameType, limit resolver.TimeLimit) (*model.GameMutationResponse, error)
 	GameJoin(ctx context.Context, id string) (*model.GameMutationResponse, error)
 	GameMove(ctx context.Context, id string, move string, status *model.GameStatus) (*model.GameMutationResponse, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id *string) (*resolver.User, error)
+	Game(ctx context.Context, id string) (*resolver.Game, error)
 }
 type SubscriptionResolver interface {
 	OnMoveNew(ctx context.Context, id string) (<-chan *resolver.Move, error)
@@ -282,7 +280,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.GameCreate(childComplexity, args["type"].(model.GameType), args["limit"].(model.TimeLimit)), true
+		return e.complexity.Mutation.GameCreate(childComplexity, args["type"].(model.GameType), args["limit"].(resolver.TimeLimit)), true
 
 	case "Mutation.gameJoin":
 		if e.complexity.Mutation.GameJoin == nil {
@@ -326,6 +324,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UserEdit(childComplexity, args["input"].(model.UserEditInput)), true
+
+	case "Query.game":
+		if e.complexity.Query.Game == nil {
+			break
+		}
+
+		args, err := ec.field_Query_game_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Game(childComplexity, args["id"].(string)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -542,6 +552,7 @@ enum TimeLimit {
 
 type Query {
   user(id: ID): User
+  game(id: ID!): Game
 }
 
 type Mutation {
@@ -642,10 +653,10 @@ func (ec *executionContext) field_Mutation_gameCreate_args(ctx context.Context, 
 		}
 	}
 	args["type"] = arg0
-	var arg1 model.TimeLimit
+	var arg1 resolver.TimeLimit
 	if tmp, ok := rawArgs["limit"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg1, err = ec.unmarshalNTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐTimeLimit(ctx, tmp)
+		arg1, err = ec.unmarshalNTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐTimeLimit(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -729,6 +740,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_game_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1272,7 +1298,7 @@ func (ec *executionContext) _Game_timeLimit(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Game().TimeLimit(rctx, obj)
+		return obj.TimeLimit(ctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1281,9 +1307,9 @@ func (ec *executionContext) _Game_timeLimit(ctx context.Context, field graphql.C
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.TimeLimit)
+	res := resTmp.(resolver.TimeLimit)
 	fc.Result = res
-	return ec.marshalOTimeLimit2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐTimeLimit(ctx, field.Selections, res)
+	return ec.marshalOTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐTimeLimit(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Game_timeLimit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1291,7 +1317,7 @@ func (ec *executionContext) fieldContext_Game_timeLimit(ctx context.Context, fie
 		Object:     "Game",
 		Field:      field,
 		IsMethod:   true,
-		IsResolver: true,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type TimeLimit does not have child fields")
 		},
@@ -1746,7 +1772,7 @@ func (ec *executionContext) _Mutation_gameCreate(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().GameCreate(rctx, fc.Args["type"].(model.GameType), fc.Args["limit"].(model.TimeLimit))
+		return ec.resolvers.Mutation().GameCreate(rctx, fc.Args["type"].(model.GameType), fc.Args["limit"].(resolver.TimeLimit))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1983,6 +2009,78 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_user_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_game(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_game(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Game(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*resolver.Game)
+	fc.Result = res
+	return ec.marshalOGame2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐGame(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_game(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Game_id(ctx, field)
+			case "moves":
+				return ec.fieldContext_Game_moves(ctx, field)
+			case "playerOne":
+				return ec.fieldContext_Game_playerOne(ctx, field)
+			case "playerTwo":
+				return ec.fieldContext_Game_playerTwo(ctx, field)
+			case "winner":
+				return ec.fieldContext_Game_winner(ctx, field)
+			case "draw":
+				return ec.fieldContext_Game_draw(ctx, field)
+			case "aborted":
+				return ec.fieldContext_Game_aborted(ctx, field)
+			case "timeLimit":
+				return ec.fieldContext_Game_timeLimit(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_Game_timestamp(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_game_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4949,6 +5047,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "game":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_game(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -5585,14 +5703,20 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐTimeLimit(ctx context.Context, v interface{}) (model.TimeLimit, error) {
-	var res model.TimeLimit
-	err := res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalNTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐTimeLimit(ctx context.Context, v interface{}) (resolver.TimeLimit, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := resolver.TimeLimit(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐTimeLimit(ctx context.Context, sel ast.SelectionSet, v model.TimeLimit) graphql.Marshaler {
-	return v
+func (ec *executionContext) marshalNTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐTimeLimit(ctx context.Context, sel ast.SelectionSet, v resolver.TimeLimit) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNUserEditInput2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐUserEditInput(ctx context.Context, v interface{}) (model.UserEditInput, error) {
@@ -6038,20 +6162,15 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalOTimeLimit2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐTimeLimit(ctx context.Context, v interface{}) (*model.TimeLimit, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model.TimeLimit)
-	err := res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalOTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐTimeLimit(ctx context.Context, v interface{}) (resolver.TimeLimit, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := resolver.TimeLimit(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOTimeLimit2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐTimeLimit(ctx context.Context, sel ast.SelectionSet, v *model.TimeLimit) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
+func (ec *executionContext) marshalOTimeLimit2githubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐTimeLimit(ctx context.Context, sel ast.SelectionSet, v resolver.TimeLimit) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	return res
 }
 
 func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐUser(ctx context.Context, sel ast.SelectionSet, v []*resolver.User) graphql.Marshaler {

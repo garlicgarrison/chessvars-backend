@@ -16,11 +16,6 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// TimeLimit is the resolver for the timeLimit field.
-func (r *gameResolver) TimeLimit(ctx context.Context, obj *resolver.Game) (*model.TimeLimit, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
 // UserEdit is the resolver for the userEdit field.
 func (r *mutationResolver) UserEdit(ctx context.Context, input model.UserEditInput) (*model.UserMutationResponse, error) {
 	panic(fmt.Errorf("not implemented"))
@@ -32,7 +27,7 @@ func (r *mutationResolver) UserDelete(ctx context.Context) (*model.BasicMutation
 }
 
 // GameCreate is the resolver for the gameCreate field.
-func (r *mutationResolver) GameCreate(ctx context.Context, typeArg model.GameType, limit model.TimeLimit) (*model.GameMutationResponse, error) {
+func (r *mutationResolver) GameCreate(ctx context.Context, typeArg model.GameType, limit resolver.TimeLimit) (*model.GameMutationResponse, error) {
 	userID, ok := resolver.GetAuthUserID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("could not validate user")
@@ -40,19 +35,19 @@ func (r *mutationResolver) GameCreate(ctx context.Context, typeArg model.GameTyp
 
 	var timeLimit game.TimeLimit
 	switch limit {
-	case model.TimeLimitBullet:
+	case resolver.BULLET:
 		timeLimit = game.BULLET
-	case model.TimeLimitBlitz:
+	case resolver.BLITZ:
 		timeLimit = game.BLITZ
-	case model.TimeLimitBlitz2:
+	case resolver.BLITZ2:
 		timeLimit = game.BLITZ2
-	case model.TimeLimitRapid:
+	case resolver.RAPID:
 		timeLimit = game.RAPID
-	case model.TimeLimitRapid2:
+	case resolver.RAPID2:
 		timeLimit = game.RAPID2
-	case model.TimeLimitRapid3:
+	case resolver.RAPID3:
 		timeLimit = game.RAPID3
-	case model.TimeLimitRapid4:
+	case resolver.RAPID4:
 		timeLimit = game.RAPID4
 	default:
 		return nil, fmt.Errorf("time limit not valid")
@@ -184,6 +179,16 @@ func (r *queryResolver) User(ctx context.Context, id *string) (*resolver.User, e
 	return resolver.NewUser(r.Services, userID), nil
 }
 
+// Game is the resolver for the game field.
+func (r *queryResolver) Game(ctx context.Context, id string) (*resolver.Game, error) {
+	gameID, err := format.ParseGameID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return resolver.NewGame(r.Services, gameID), nil
+}
+
 // OnMoveNew is the resolver for the onMoveNew field.
 func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan *resolver.Move, error) {
 	userID, ok := resolver.GetAuthUserID(ctx)
@@ -211,9 +216,6 @@ func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan
 	return mc, nil
 }
 
-// Game returns generated.GameResolver implementation.
-func (r *Resolver) Game() generated.GameResolver { return &gameResolver{r} }
-
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
@@ -223,7 +225,6 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 // Subscription returns generated.SubscriptionResolver implementation.
 func (r *Resolver) Subscription() generated.SubscriptionResolver { return &subscriptionResolver{r} }
 
-type gameResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }

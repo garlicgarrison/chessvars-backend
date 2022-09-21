@@ -59,3 +59,6 @@ models:
   Move:
     model:
       - github.com/garlicgarrison/chessvars-backend/graph/resolver.Move
+  TimeLimit:
+    model:
+      - github.com/garlicgarrison/chessvars-backend/graph/resolver.TimeLimit

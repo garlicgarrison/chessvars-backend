@@ -77,5 +77,6 @@ type GameDocument struct {
 	Aborted   bool          `firestore:"aborted"`
 	Type      GameType      `firestore:"type"`
 	TimeLimit TimeLimit     `firestore:"time_limit"`
+	StartTime time.Time     `firestore:"start_time"`
 	Timestamp time.Time     `firestore:"timestamp"`
 }

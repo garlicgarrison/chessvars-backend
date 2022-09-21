@@ -32,6 +32,7 @@ enum TimeLimit {
 
 type Query {
   user(id: ID): User
+  game(id: ID!): Game
 }
 
 type Mutation {
