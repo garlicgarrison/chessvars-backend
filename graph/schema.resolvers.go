@@ -150,6 +150,13 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 		return nil, err
 	}
 
+	// send move to all channels with given gameID
+	r.mutex.Lock()
+	for _, c := range r.moveChannels[gameID] {
+		c <- resolver.NewMove(r.Services, &game.Moves[len(game.Moves)-1])
+	}
+	r.mutex.Unlock()
+
 	return &model.GameMutationResponse{
 		Code:    int(codes.OK),
 		Success: true,
@@ -179,6 +186,11 @@ func (r *queryResolver) User(ctx context.Context, id *string) (*resolver.User, e
 
 // OnMoveNew is the resolver for the onMoveNew field.
 func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan *resolver.Move, error) {
+	userID, ok := resolver.GetAuthUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("could not parse user from context")
+	}
+
 	gameID, err := format.ParseGameID(id)
 	if err != nil {
 		return nil, err
@@ -186,7 +198,7 @@ func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan
 
 	mc := make(chan *resolver.Move, 1)
 	r.mutex.Lock()
-	r.moveChannels[gameID] = mc
+	r.moveChannels[gameID][userID] = mc
 	r.mutex.Unlock()
 
 	go func() {

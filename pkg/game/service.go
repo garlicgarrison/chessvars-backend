@@ -93,7 +93,18 @@ func (s *service) CreateGame(ctx context.Context, request CreateGameRequest) (*C
 }
 
 func (s *service) GetGame(ctx context.Context, request GetGameRequest) (*GetGameResponse, error) {
-	return nil, nil
+	gameSnap, err := s.getGameRef(request.GameID).Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var game GameDocument
+	err = gameSnap.DataTo(&game)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.populateGame(&game), nil
 }
 
 func (s *service) EditGame(ctx context.Context, request EditGameRequest) (*EditGameResponse, error) {

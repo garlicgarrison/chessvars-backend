@@ -20,9 +20,11 @@ type Resolver struct {
 
 	/*
 		Key: gameID
-		Value: *resolver.Move
+		Value: []chan *resolver.Move
+		NOTE: whenever a game changes moves,
+		everyone that subscribes should get a push
 	*/
-	moveChannels map[format.GameID]chan *resolver.Move
+	moveChannels map[format.GameID](map[format.UserID]chan *resolver.Move)
 
 	mutex sync.Mutex
 }
