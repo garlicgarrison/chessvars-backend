@@ -83,6 +83,34 @@ func (r *mutationResolver) GameCreate(ctx context.Context, typeArg model.GameTyp
 	}, nil
 }
 
+// GameJoin is the resolver for the gameJoin field.
+func (r *mutationResolver) GameJoin(ctx context.Context, id string) (*model.GameMutationResponse, error) {
+	userID, ok := resolver.GetAuthUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("could not validate user")
+	}
+
+	gameID, err := format.ParseGameID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	game, err := r.Services.Game.JoinGame(ctx, game.JoinGameRequest{
+		GameID: gameID,
+		UserID: userID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.GameMutationResponse{
+		Code:    int(codes.OK),
+		Success: true,
+		Message: "game successfully joined",
+		Game:    resolver.NewGameWithData(r.Services, game),
+	}, err
+}
+
 // GameMove is the resolver for the gameMove field.
 func (r *mutationResolver) GameMove(ctx context.Context, id string, move string, status *model.GameStatus) (*model.GameMutationResponse, error) {
 	userID, ok := resolver.GetAuthUserID(ctx)

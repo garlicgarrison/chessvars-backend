@@ -11,6 +11,7 @@ type Service interface {
 	CreateGame(context.Context, CreateGameRequest) (*CreateGameResponse, error)
 	GetGame(context.Context, GetGameRequest) (*GetGameResponse, error)
 	EditGame(context.Context, EditGameRequest) (*EditGameResponse, error)
+	JoinGame(context.Context, JoinGameRequest) (*EditGameResponse, error)
 }
 
 type MoveResponse struct {
@@ -52,6 +53,11 @@ type EditGameRequest struct {
 
 	/* For now, we trust the client on status of the game */
 	Status GameStatus `json:"status"`
+}
+
+type JoinGameRequest struct {
+	GameID format.GameID `json:"game_id"`
+	UserID format.UserID `json:"user_id"`
 }
 
 type EditGameResponse = Game

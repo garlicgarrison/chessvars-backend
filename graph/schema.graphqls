@@ -39,6 +39,7 @@ type Mutation {
   userDelete: BasicMutationResponse!
 
   gameCreate(type: GameType!, limit: TimeLimit!): GameMutationResponse!
+  gameJoin(id: ID!): GameMutationResponse!
   gameMove(id: ID!, move: String!, status: GameStatus): GameMutationResponse!
 }
 

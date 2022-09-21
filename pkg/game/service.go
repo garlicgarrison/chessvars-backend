@@ -158,3 +158,40 @@ func (s *service) EditGame(ctx context.Context, request EditGameRequest) (*EditG
 
 	return s.populateGame(&game), nil
 }
+
+func (s *service) JoinGame(ctx context.Context, request JoinGameRequest) (*EditGameResponse, error) {
+	var game GameDocument
+	err := s.fs.RunTransaction(ctx, func(ctx context.Context, t *firestore.Transaction) error {
+		gameSnap, err := t.Get(s.getGameRef(request.GameID))
+		if err != nil {
+			return err
+		}
+
+		err = gameSnap.DataTo(&game)
+		if err != nil {
+			return err
+		}
+
+		if game.Aborted {
+			return fmt.Errorf("game was aborted")
+		}
+
+		if game.PlayerOne == "" {
+			game.PlayerOne = request.UserID
+		} else if game.PlayerTwo == "" {
+			game.PlayerTwo = request.UserID
+		} else {
+			return fmt.Errorf("this game is no longer available")
+		}
+
+		return t.Set(
+			s.getGameRef(request.GameID),
+			game,
+		)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return s.populateGame(&game), nil
+}
