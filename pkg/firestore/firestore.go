@@ -126,7 +126,7 @@ type Firestore interface {
 	//
 	// This function unsafe for use in production since we don't currently keep track
 	// of each request context.
-	unsafe_configure(context.Context, Config) (*Document, error)
+	UNSAFE_CONFIGURE(context.Context, Config) (*Document, error)
 }
 
 type Config struct {
@@ -225,7 +225,7 @@ func (fs *fs) Batch() *firestore.WriteBatch {
 	return fs.client.Batch()
 }
 
-func (fs *fs) unsafe_configure(ctx context.Context, config Config) (*Document, error) {
+func (fs *fs) UNSAFE_CONFIGURE(ctx context.Context, config Config) (*Document, error) {
 	if !fs.isMock {
 		return nil, errors.New("not allowed -- only available for mock firestores")
 	}

@@ -13,14 +13,14 @@ services:
   backend:
     build: .
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/keys/pafkiuq.json
-      - FIRESTORE_PROJECT_ID=pafkiuq-62d96
+      - GOOGLE_APPLICATION_CREDENTIALS=/keys/chessvars-test.json
+      - FIRESTORE_PROJECT_ID=chessvars-test
     volumes:
       - ./.keys:/keys
+    depends_on:
+      - redis
     ports:
       - 8080:8080
-    depends_on:
-      - elasticsearch
     networks:
       - broker
 

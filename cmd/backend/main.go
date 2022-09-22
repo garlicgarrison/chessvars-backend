@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -30,7 +29,7 @@ import (
 type Config struct {
 	Port      int    `envconfig:"PORT" default:"8080"`
 	Address   string `envconfig:"ADDRESS" default:"http://localhost:8080"`
-	RedisAddr string `envconfig:"REDIS_ADDRESS" default:"localhost:6379"`
+	RedisAddr string `envconfig:"REDIS_ADDRESS" default:"redis:6379"`
 
 	Firestore firestore.Config
 }
@@ -44,6 +43,7 @@ func main() {
 		fmt.Printf("failed to process configs: %s\n", err)
 		os.Exit(1)
 	}
+	fmt.Printf("config: %v", cfg)
 
 	/* start section: third party */
 
@@ -66,8 +66,9 @@ func main() {
 	}
 
 	redis, err := redis.NewRedisClient(cfg.RedisAddr)
-	if !errors.Is(err, nil) {
-		log.Fatalln(err)
+	if err != nil {
+		log.Printf("error in intitializing redis: %s \n", err)
+		os.Exit(1)
 	}
 	defer redis.Close()
 
