@@ -26,11 +26,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: create codedeploy deployment
-        id: deploy
-        run: |
-          aws deploy create-deployment \
-            --application-name Git_Application \
-            --deployment-group-name development_gropup \
-            --deployment-config-name CodeDeployDefault.OneAtATime \
-            --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+      - name: ssh into aws ec2
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.AWS_SSH_SECRET }}
+          name: id
+          known_hosts: ${{ secrets.AWS_SSH_PUBLIC_KEY }}
+          config: |
+            Host chessvars
+              HostName ec2-18-234-125-199.compute-1.amazonaws.com
+              User ec2-user
+              IdentityFile ~/.ssh/id
+      - name: ssh deploy
+        run: ssh chessvars bash --login
