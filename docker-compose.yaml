@@ -4,14 +4,12 @@ services:
   backend:
     build: .
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/keys/chessvars-test.json
       - FIRESTORE_PROJECT_ID=chessvars-test
-    volumes:
-      - ./.keys:/keys
     ports:
       - 8080:8080
     networks:
       - broker
+
 networks:
   broker:
     driver: bridge

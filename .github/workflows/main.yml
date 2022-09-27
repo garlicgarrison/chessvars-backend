@@ -11,6 +11,11 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
+      # - name: put google secret in temp file
+      #   env:
+      #     GOOGLE_CRENDENTIALS: ${{ secrets.FIREBASE_TEST_CONFIG }}
+      #   run: |
+      #     echo "$GOOGLE_CRENDENTIALS" >> google_key.json
       # - name: docker login
       #   uses: docker/login-action@v1
       #   with:
@@ -21,18 +26,29 @@ jobs:
       #   with:
       #     push: true
       #     tags: garlicgarrison/chessvars-backend:latest
+      #     secret-files: |
+      #       "GOOGLE_CRENDENTIALS=./google_key.json"
+
       # - name: configure aws credentials
       #   uses: aws-actions/configure-aws-credentials@v1
       #   with:
       #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       #     aws-region: ${{ secrets.AWS_REGION }}
-      - name: ssh into aws ec2
-        env:
-          PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
-          HOSTNAME: ${{ secrets.AWS_HOST }}
-        run: |
-          mkdir ~/.ssh
-          echo "$PRIVATE_KEY" >> ~/.ssh/github-action
-          chmod 400 ~/.ssh/github-action
-          ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}
+      # - name: ssh into aws ec2
+      #   env:
+      #     PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
+      #     HOSTNAME: ${{ secrets.AWS_HOST }}
+      #   run: |
+      #     mkdir ~/.ssh
+      #     echo "$PRIVATE_KEY" >> ~/.ssh/github-action
+      #     chmod 400 ~/.ssh/github-action
+      #     ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}
+      - name: ssh to ec2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ec2-user
+          port: 22
+          key: ${{ secrets.AWS_SSH_SECRET }}
+          script: echo "HELLO"

@@ -6,8 +6,9 @@ RUN apt-get update \
         make
 
 ENV APP_DIR $GOPATH/src/github.com/garlicgarrison/chessvars-backend
-
 WORKDIR ${APP_DIR}
+
+
 
 COPY . ${APP_DIR}
 

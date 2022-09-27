@@ -20,7 +20,6 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/middleware"
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
-	"github.com/garlicgarrison/chessvars-backend/pkg/redis"
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 	"github.com/gorilla/websocket"
 	"github.com/kelseyhightower/envconfig"
@@ -29,7 +28,6 @@ import (
 type Config struct {
 	Port      int    `envconfig:"PORT" default:"8080"`
 	Address   string `envconfig:"ADDRESS" default:"http://localhost:8080"`
-	RedisAddr string `envconfig:"REDIS_ADDRESS" default:"redis:6379"`
 
 	Firestore firestore.Config
 }
@@ -64,14 +62,6 @@ func main() {
 		log.Printf("error in intitializing firestore: %s \n", err)
 		os.Exit(1)
 	}
-
-	redis, err := redis.NewRedisClient(cfg.RedisAddr)
-	if err != nil {
-		log.Printf("error in intitializing redis: %s \n", err)
-		os.Exit(1)
-	}
-	defer redis.Close()
-
 	/* end section: third party */
 
 	/* start section: initialize server */
