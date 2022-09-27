@@ -32,4 +32,4 @@ jobs:
           HOSTNAME: ${{ secrets.AWS_HOSTNAME }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ec2-user@${HOSTNAME}
+          ssh -o StrictHostKeyChecking=no -v -i private_key ubuntu@${HOSTNAME}
