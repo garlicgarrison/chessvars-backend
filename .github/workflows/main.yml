@@ -50,9 +50,9 @@ jobs:
           script: |
             sudo amazon-linux-extras install docker -y
             sudo service docker start
+            sudo docker rm --force $(shell docker ps -q --filter name=backend) | true
+            sudo docker container prune -f
+            sudo docker image prune -f
+            sudo docker volume prune -f
             sudo docker pull garlicgarrison/chessvars-backend:latest
-            sudo docker run -dp 8080:8080 \
-              --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json \
-              --env FIRESTORE_PROJECT_ID=chessvars-test \
-              -v $(shell pwd)/.keys/firebase.json:/keys/firebase.json \
-              --name chessvars-backend garlicgarrison/chessvars-backend:latest
+            sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(shell pwd)/.keys/firebase.json:/keys/firebase.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
