@@ -39,6 +39,6 @@ jobs:
               IdentityFile ~/.ssh/id
       - name: ssh deploy
         run: |
-          cd home/runner/.ssh
+          cd /home/runner/.ssh
           ls -a
-          ssh chessvars bash --login
+          ssh chessvars info
