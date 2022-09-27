@@ -55,4 +55,7 @@ jobs:
           key: ${{ secrets.AWS_SSH_SECRET }}
           envs: GOOGLE_CRENDENTIALS
           script: |
-            setup
+            sudo amazon-linux-extras install docker -y
+            sudo service docker start
+            echo "$GOOGLE_CREDENTIALS" > google_key.json
+            whoami
