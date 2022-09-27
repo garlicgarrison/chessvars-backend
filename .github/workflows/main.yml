@@ -27,18 +27,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: ssh into aws ec2
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.AWS_SSH_SECRET }}
-          name: id
-          known_hosts: ${{ secrets.AWS_SSH_PUBLIC_KEY }}
-          config: |
-            Host chessvars
-              HostName ec2-18-234-125-199.compute-1.amazonaws.com
-              User ec2-user
-              IdentityFile ~/.ssh/id
-      - name: ssh deploy
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
+          HOSTNAME: ${{ secrets.AWS_HOSTNAME }}
         run: |
-          cd /home/runner/.ssh
-          ls -a
-          ssh chessvars info
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME}
