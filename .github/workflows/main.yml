@@ -46,9 +46,13 @@ jobs:
       #     ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}
       - name: ssh to ec2
         uses: appleboy/ssh-action@master
+        env:
+          GOOGLE_CRENDENTIALS: ${{ secrets.FIREBASE_TEST_CONFIG }}
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ec2-user
           port: 22
           key: ${{ secrets.AWS_SSH_SECRET }}
-          script: echo "HELLO"
+          envs: GOOGLE_CRENDENTIALS
+          script: |
+            setup
