@@ -27,10 +27,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: ssh into aws ec2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_HOST }}
-          key: ${{ secrets.AWS_SSH_SECRET }}
-          username: ec2-user
-          script: |
-            ls -a
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
+          HOSTNAME: ${{ secrets.AWS_HOSTNAME }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ec2-user@${HOSTNAME}
