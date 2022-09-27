@@ -30,7 +30,7 @@ jobs:
       - name: ssh into aws ec2
         env:
           PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
-          HOSTNAME: ${{ secrets.AWS_HOSTNAME }}
+          HOSTNAME: ${{ secrets.AWS_HOST }}
         run: |
           mkdir ~/.ssh
           echo "$PRIVATE_KEY" >> ~/.ssh/github-action
