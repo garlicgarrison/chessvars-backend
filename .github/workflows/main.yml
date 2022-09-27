@@ -38,4 +38,7 @@ jobs:
               User ec2-user
               IdentityFile ~/.ssh/id
       - name: ssh deploy
-        run: ssh chessvars bash --login
+        run: |
+          cd home/runner/.ssh
+          ls -a
+          ssh chessvars bash --login
