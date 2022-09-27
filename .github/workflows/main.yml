@@ -35,4 +35,4 @@ jobs:
           mkdir ~/.ssh
           echo "$PRIVATE_KEY" >> ~/.ssh/github-action
           chmod 400 ~/.ssh/github-action
-          ssh -v -i ~/.ssh/github-action ec2-user@${HOSTNAME} -y
+          ssh -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}
