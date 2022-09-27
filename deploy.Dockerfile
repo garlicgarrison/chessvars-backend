@@ -8,8 +8,6 @@ RUN apt-get update \
 ENV APP_DIR $GOPATH/src/github.com/garlicgarrison/chessvars-backend
 WORKDIR ${APP_DIR}
 
-
-
 COPY . ${APP_DIR}
 
 RUN make build

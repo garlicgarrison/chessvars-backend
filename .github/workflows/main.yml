@@ -11,23 +11,16 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      # - name: put google secret in temp file
-      #   env:
-      #     GOOGLE_CRENDENTIALS: ${{ secrets.FIREBASE_TEST_CONFIG }}
-      #   run: |
-      #     echo "$GOOGLE_CRENDENTIALS" >> google_key.json
-      # - name: docker login
-      #   uses: docker/login-action@v1
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      # - name: build and push docker
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     push: true
-      #     tags: garlicgarrison/chessvars-backend:latest
-      #     secret-files: |
-      #       "GOOGLE_CRENDENTIALS=./google_key.json"
+      - name: docker login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: build and push docker
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: garlicgarrison/chessvars-backend:latest
 
       # - name: configure aws credentials
       #   uses: aws-actions/configure-aws-credentials@v1
@@ -57,4 +50,9 @@ jobs:
           script: |
             sudo amazon-linux-extras install docker -y
             sudo service docker start
-            echo '$GOOGLE_CREDENTIALS' > google_key.json
+            sudo docker pull garlicgarrison/chessvars-backend:latest
+            sudo docker run -dp 8080:8080 \
+              --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json \
+              --env FIRESTORE_PROJECT_ID=chessvars-test \
+              -v $(shell pwd)/.keys/firebase.json:/keys/firebase.json \
+              --name chessvars-backend garlicgarrison/chessvars-backend:latest
