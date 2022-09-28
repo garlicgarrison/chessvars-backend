@@ -11,16 +11,16 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      # - name: docker login
-      #   uses: docker/login-action@v1
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      # - name: build and push docker
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     push: true
-      #     tags: garlicgarrison/chessvars-backend:latest
+      - name: docker login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: build and push docker
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: garlicgarrison/chessvars-backend:latest
 
       # - name: configure aws credentials
       #   uses: aws-actions/configure-aws-credentials@v1
@@ -55,4 +55,4 @@ jobs:
             sudo docker volume prune -f
             sudo docker pull garlicgarrison/chessvars-backend:latest
             cd ~/chessvars-backend
-            sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(pwd)/keys/firebase.json:/keys/firebase.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
+            sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/chessvars-test.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(pwd)/keys/chessvars-test.json:/keys/chessvars-test.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
