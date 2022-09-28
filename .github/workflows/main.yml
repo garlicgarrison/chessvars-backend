@@ -36,7 +36,7 @@ jobs:
           mkdir ~/.ssh
           echo "$PRIVATE_KEY" >> ~/.ssh/github-action
           chmod 400 ~/.ssh/github-action
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}" --progress "$PWD" ec2-user@${HOSTNAME}:~/chessvars-backend
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}" --progress $(pwd)/* ec2-user@${HOSTNAME}:~/chessvars-backend
 
       - name: run docker on ec2
         uses: appleboy/ssh-action@master
@@ -46,6 +46,7 @@ jobs:
           port: 22
           key: ${{ secrets.AWS_SSH_SECRET }}
           script: |
+
             sudo amazon-linux-extras install docker -y
             sudo service docker start
             sudo docker rm --force $(docker ps -q --filter name=chessvars-backend) | true
