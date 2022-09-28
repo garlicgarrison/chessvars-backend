@@ -36,7 +36,7 @@ jobs:
           mkdir ~/.ssh
           echo "$PRIVATE_KEY" >> ~/.ssh/github-action
           chmod 400 ~/.ssh/github-action
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}" --progress $(pwd)/* ec2-user@${HOSTNAME}:~/chessvars-backend
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action" --progress $(pwd)/* ec2-user@${HOSTNAME}:~/chessvars-backend
 
       - name: run docker on ec2
         uses: appleboy/ssh-action@master
