@@ -33,6 +33,7 @@ jobs:
           PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
           HOSTNAME: ${{ secrets.AWS_HOST }}
         run: |
+          ls -a
           mkdir ~/.ssh
           echo "$PRIVATE_KEY" >> ~/.ssh/github-action
           chmod 400 ~/.ssh/github-action
@@ -46,7 +47,6 @@ jobs:
           port: 22
           key: ${{ secrets.AWS_SSH_SECRET }}
           script: |
-
             sudo amazon-linux-extras install docker -y
             sudo service docker start
             sudo docker rm --force $(docker ps -q --filter name=chessvars-backend) | true
@@ -54,4 +54,4 @@ jobs:
             sudo docker image prune -f
             sudo docker volume prune -f
             sudo docker pull garlicgarrison/chessvars-backend:latest
-            sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(pwd)/.keys/firebase.json:/keys/firebase.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
+            sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(pwd)/keys/firebase.json:/keys/firebase.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
