@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - production
+      - staging
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,16 +21,38 @@ jobs:
         with:
           push: true
           tags: garlicgarrison/chessvars-backend:latest
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: ssh into aws ec2
+
+      # - name: configure aws credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_REGION }}
+      - name: ssh and rsync into aws ec2
         env:
           PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
-          HOSTNAME: ${{ secrets.AWS_HOSTNAME }}
+          HOSTNAME: ${{ secrets.AWS_HOST }}
         run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -v -i private_key ubuntu@${HOSTNAME}
+          ls -a
+          mkdir ~/.ssh
+          echo "$PRIVATE_KEY" >> ~/.ssh/github-action
+          chmod 400 ~/.ssh/github-action
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action" --progress $(pwd)/* ec2-user@${HOSTNAME}:~/chessvars-backend
+
+      - name: run docker on ec2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ec2-user
+          port: 22
+          key: ${{ secrets.AWS_SSH_SECRET }}
+          script: |
+            sudo amazon-linux-extras install docker -y
+            sudo service docker start
+            sudo docker rm --force $(docker ps -q --filter name=chessvars-backend) | true
+            sudo docker container prune -f
+            sudo docker image prune -f
+            sudo docker volume prune -f
+            sudo docker pull garlicgarrison/chessvars-backend:latest
+            cd ~/chessvars-backend
+            sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/chessvars-test.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(pwd)/keys/chessvars-test.json:/keys/chessvars-test.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
