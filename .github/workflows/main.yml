@@ -11,16 +11,16 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      - name: docker login
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: build and push docker
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: garlicgarrison/chessvars-backend:latest
+      # - name: docker login
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      # - name: build and push docker
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     push: true
+      #     tags: garlicgarrison/chessvars-backend:latest
 
       # - name: configure aws credentials
       #   uses: aws-actions/configure-aws-credentials@v1
@@ -37,8 +37,8 @@ jobs:
       #     echo "$PRIVATE_KEY" >> ~/.ssh/github-action
       #     chmod 400 ~/.ssh/github-action
       #     ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}
-      - name: add known hosts
-        run: ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+      # - name: add known hosts
+      #   run: ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
       # - name: ssh to ec2
       #   uses: appleboy/ssh-action@master
       #   with:
@@ -55,12 +55,12 @@ jobs:
       #       sudo docker volume prune -f
       #       sudo docker pull garlicgarrison/chessvars-backend:latest
       #       sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(pwd)/.keys/firebase.json:/keys/firebase.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
-      - name: ssh to ec2
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.AWS_SSH_SECRET }}
-          name: id
-          known_hosts: unnecessary
+      # - name: ssh to ec2
+      #   uses: shimataro/ssh-key-action@v2
+      #   with:
+      #     key: ${{ secrets.AWS_SSH_SECRET }}
+      #     name: id
+      #     known_hosts: unnecessary
       - name: rsync to ec2
         run: |
           ls -a
