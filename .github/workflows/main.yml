@@ -28,39 +28,29 @@ jobs:
       #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       #     aws-region: ${{ secrets.AWS_REGION }}
-      # - name: ssh into aws ec2
-      #   env:
-      #     PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
-      #     HOSTNAME: ${{ secrets.AWS_HOST }}
-      #   run: |
-      #     mkdir ~/.ssh
-      #     echo "$PRIVATE_KEY" >> ~/.ssh/github-action
-      #     chmod 400 ~/.ssh/github-action
-      #     ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}
-      # - name: add known hosts
-      #   run: ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
-      # - name: ssh to ec2
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.AWS_HOST }}
-      #     username: ec2-user
-      #     port: 22
-      #     key: ${{ secrets.AWS_SSH_SECRET }}
-      #     script: |
-      #       sudo amazon-linux-extras install docker -y
-      #       sudo service docker start
-      #       sudo docker rm --force $(docker ps -q --filter name=chessvars-backend) | true
-      #       sudo docker container prune -f
-      #       sudo docker image prune -f
-      #       sudo docker volume prune -f
-      #       sudo docker pull garlicgarrison/chessvars-backend:latest
-      #       sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(pwd)/.keys/firebase.json:/keys/firebase.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
-      # - name: ssh to ec2
-      #   uses: shimataro/ssh-key-action@v2
-      #   with:
-      #     key: ${{ secrets.AWS_SSH_SECRET }}
-      #     name: id
-      #     known_hosts: unnecessary
-      - name: rsync to ec2
+      - name: ssh and rsync into aws ec2
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_SSH_SECRET }}
+          HOSTNAME: ${{ secrets.AWS_HOST }}
         run: |
-          ls -a
+          mkdir ~/.ssh
+          echo "$PRIVATE_KEY" >> ~/.ssh/github-action
+          chmod 400 ~/.ssh/github-action
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -v -i ~/.ssh/github-action ec2-user@${HOSTNAME}"" --progress "$PWD" ec2-user@${HOSTNAME}:/home/ec2-user/chessvars-backend
+
+      - name: run docker on ec2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ec2-user
+          port: 22
+          key: ${{ secrets.AWS_SSH_SECRET }}
+          script: |
+            sudo amazon-linux-extras install docker -y
+            sudo service docker start
+            sudo docker rm --force $(docker ps -q --filter name=chessvars-backend) | true
+            sudo docker container prune -f
+            sudo docker image prune -f
+            sudo docker volume prune -f
+            sudo docker pull garlicgarrison/chessvars-backend:latest
+            sudo docker run -dp 8080:8080 --env GOOGLE_APPLICATION_CREDENTIALS=/keys/firebase.json --env FIRESTORE_PROJECT_ID=chessvars-test -v $(pwd)/.keys/firebase.json:/keys/firebase.json --name chessvars-backend garlicgarrison/chessvars-backend:latest
