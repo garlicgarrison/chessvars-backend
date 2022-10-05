@@ -80,11 +80,6 @@ func (u *User) Username(ctx context.Context) (string, error) {
 	return reply.Username, nil
 }
 
-func (u *User) Elo(ctx context.Context) (int, error) {
-	reply, err := u.getter.Call(ctx)
-	if err != nil {
-		return 1200, err
-	}
-
-	return reply.Elo, nil
+func (u *User) Elo(ctx context.Context) (*Elo, error) {
+	return NewElo(u.services, u.userID), nil
 }

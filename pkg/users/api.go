@@ -15,7 +15,6 @@ type Service interface {
 type User struct {
 	UserID   format.UserID `json:"user_id"`
 	Username string        `json:"username"`
-	Elo      int           `json:"elo"`
 }
 
 type CreateUserRequest struct {

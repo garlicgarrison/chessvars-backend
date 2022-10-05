@@ -62,3 +62,6 @@ models:
   TimeLimit:
     model:
       - github.com/garlicgarrison/chessvars-backend/graph/resolver.TimeLimit
+  Elo:
+    model:
+      - github.com/garlicgarrison/chessvars-backend/graph/resolver.Elo

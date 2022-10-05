@@ -53,12 +53,17 @@ type User {
   id: ID!
   exists: Boolean
   username: String
-  elo: Int
+  elo: Elo
 }
 
 type Users {
   users: [User]
   next: String
+}
+
+type Elo {
+  janggi: Int
+  shogi: Int
 }
 
 type Game {

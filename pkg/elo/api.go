@@ -10,6 +10,7 @@ import (
 type Service interface {
 	CreateElo(context.Context, CreateEloRequest) (*CreateEloResponse, error)
 	GetElo(context.Context, GetEloRequest) (*GetEloResponse, error)
+	GetElos(context.Context, GetElosRequest) (*Elos, error)
 	UpdateElo(context.Context, UpdateEloRequest) (*UpdateEloResponse, error)
 }
 
@@ -21,6 +22,14 @@ type CreateEloRequest struct {
 type GetEloRequest struct {
 	UserID format.UserID `json:"user_id"`
 	Game   game.GameType `json:"game"`
+}
+
+type GetElosRequest struct {
+	UserID format.UserID `json:"user_id"`
+}
+
+type Elos struct {
+	Elos []*Elo `json:"elos"`
 }
 
 type UpdateEloRequest struct {
