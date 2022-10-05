@@ -42,7 +42,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := format.NewUserIDFromIdentifer(token.UID)
-	email := token.Firebase.Identities["email"].(string)
+	email := token.Firebase.Identities["email"].([]interface{})[0].(string)
 	ctx := context.WithValue(r.Context(), AUTH_USER_CONTEXT_KEY, userID)
 	ctx = context.WithValue(ctx, AUTH_USER_EMAIL_CONTEXT_KEY, email)
 	request := r.WithContext(ctx)
