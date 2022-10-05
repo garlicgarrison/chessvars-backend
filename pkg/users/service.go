@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"time"
@@ -53,7 +54,8 @@ func (s *service) verifyUsername(ctx context.Context, username string) (bool, er
 		return false, fmt.Errorf("invalid username")
 	}
 
-	userSnaps, err := s.getUsersRef().Where("username", "==", username).
+	userSnaps, err := s.getUsersRef().
+		Where("username", "==", username).
 		Documents(ctx).
 		GetAll()
 	if err != nil || len(userSnaps) != 0 {
@@ -100,7 +102,7 @@ func (s *service) CreateUser(ctx context.Context, request CreateUserRequest) (*C
 
 	username, err := s.getUsernameFromEmail(ctx, request.Email)
 	if err != nil {
-		fmt.Printf("[getUsernameFromEmail] error -- %s", err)
+		log.Printf("[getUsernameFromEmail] error -- %s", err)
 		username = ""
 	}
 	user.Username = username
