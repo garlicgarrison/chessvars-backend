@@ -77,6 +77,15 @@ func (u *User) Exists(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
+func (u *User) Email(ctx context.Context) (string, error) {
+	reply, err := u.getter.Call(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return reply.Email, nil
+}
+
 func (u *User) Username(ctx context.Context) (string, error) {
 	reply, err := u.getter.Call(ctx)
 	if err != nil {
@@ -88,4 +97,13 @@ func (u *User) Username(ctx context.Context) (string, error) {
 
 func (u *User) Elo(ctx context.Context) (*Elo, error) {
 	return NewElo(u.services, u.userID), nil
+}
+
+func (u *User) CreatedAt(ctx context.Context) (string, error) {
+	reply, err := u.getter.Call(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return reply.CreatedAt.String(), nil
 }

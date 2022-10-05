@@ -100,10 +100,12 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Elo      func(childComplexity int) int
-		Exists   func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Username func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		Elo       func(childComplexity int) int
+		Email     func(childComplexity int) int
+		Exists    func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Username  func(childComplexity int) int
 	}
 
 	UserMutationResponse struct {
@@ -380,12 +382,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Subscription.OnMoveNew(childComplexity, args["id"].(string)), true
 
+	case "User.createdAt":
+		if e.complexity.User.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.User.CreatedAt(childComplexity), true
+
 	case "User.elo":
 		if e.complexity.User.Elo == nil {
 			break
 		}
 
 		return e.complexity.User.Elo(childComplexity), true
+
+	case "User.email":
+		if e.complexity.User.Email == nil {
+			break
+		}
+
+		return e.complexity.User.Email(childComplexity), true
 
 	case "User.exists":
 		if e.complexity.User.Exists == nil {
@@ -591,8 +607,10 @@ type Subscription {
 type User {
   id: ID!
   exists: Boolean
+  email: String
   username: String
   elo: Elo
+  createdAt: String
 }
 
 type Users {
@@ -1195,10 +1213,14 @@ func (ec *executionContext) fieldContext_Game_playerOne(ctx context.Context, fie
 				return ec.fieldContext_User_id(ctx, field)
 			case "exists":
 				return ec.fieldContext_User_exists(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
 			case "elo":
 				return ec.fieldContext_User_elo(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1246,10 +1268,14 @@ func (ec *executionContext) fieldContext_Game_playerTwo(ctx context.Context, fie
 				return ec.fieldContext_User_id(ctx, field)
 			case "exists":
 				return ec.fieldContext_User_exists(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
 			case "elo":
 				return ec.fieldContext_User_elo(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1297,10 +1323,14 @@ func (ec *executionContext) fieldContext_Game_winner(ctx context.Context, field 
 				return ec.fieldContext_User_id(ctx, field)
 			case "exists":
 				return ec.fieldContext_User_exists(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
 			case "elo":
 				return ec.fieldContext_User_elo(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -2099,10 +2129,14 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_id(ctx, field)
 			case "exists":
 				return ec.fieldContext_User_exists(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
 			case "elo":
 				return ec.fieldContext_User_elo(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -2479,6 +2513,47 @@ func (ec *executionContext) fieldContext_User_exists(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *resolver.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_email(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Email(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *resolver.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_username(ctx, field)
 	if err != nil {
@@ -2562,6 +2637,47 @@ func (ec *executionContext) fieldContext_User_elo(ctx context.Context, field gra
 				return ec.fieldContext_Elo_shogi(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Elo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *resolver.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2739,10 +2855,14 @@ func (ec *executionContext) fieldContext_UserMutationResponse_user(ctx context.C
 				return ec.fieldContext_User_id(ctx, field)
 			case "exists":
 				return ec.fieldContext_User_exists(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
 			case "elo":
 				return ec.fieldContext_User_elo(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -2790,10 +2910,14 @@ func (ec *executionContext) fieldContext_Users_users(ctx context.Context, field 
 				return ec.fieldContext_User_id(ctx, field)
 			case "exists":
 				return ec.fieldContext_User_exists(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
 			case "elo":
 				return ec.fieldContext_User_elo(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -5324,6 +5448,23 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 				return innerFunc(ctx)
 
 			})
+		case "email":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_email(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "username":
 			field := field
 
@@ -5351,6 +5492,23 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._User_elo(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "createdAt":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_createdAt(ctx, field, obj)
 				return res
 			}
 

@@ -52,8 +52,10 @@ type Subscription {
 type User {
   id: ID!
   exists: Boolean
+  email: String
   username: String
   elo: Elo
+  createdAt: String
 }
 
 type Users {
