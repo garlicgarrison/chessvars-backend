@@ -39,8 +39,10 @@ func NewService(cfg Config) (Service, error) {
 
 func populateUser(user *UserDocument) *User {
 	return &GetUserResponse{
-		UserID:   user.UserID,
-		Username: user.Username,
+		UserID:    user.UserID,
+		Username:  user.Username,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
 	}
 }
 

@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"time"
 
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 )
@@ -13,8 +14,10 @@ type Service interface {
 }
 
 type User struct {
-	UserID   format.UserID `json:"user_id"`
-	Username string        `json:"username"`
+	UserID    format.UserID `json:"user_id"`
+	Username  string        `json:"username"`
+	Email     string        `json:"email"`
+	CreatedAt time.Time     `json:"created_at"`
 }
 
 type CreateUserRequest struct {
