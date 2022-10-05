@@ -111,7 +111,7 @@ func (s *service) EditGame(ctx context.Context, request EditGameRequest) (*EditG
 	now := time.Now()
 
 	var game GameDocument
-	err := s.fs.RunTransaction(ctx, func(ctx context.Context, t *firestore.Transaction) error {
+	err := s.fs.RunTransaction(ctx, func(_ context.Context, t *firestore.Transaction) error {
 		gameSnap, err := t.Get(s.getGameRef(request.GameID))
 		if err != nil {
 			return err
@@ -172,7 +172,7 @@ func (s *service) EditGame(ctx context.Context, request EditGameRequest) (*EditG
 
 func (s *service) JoinGame(ctx context.Context, request JoinGameRequest) (*EditGameResponse, error) {
 	var game GameDocument
-	err := s.fs.RunTransaction(ctx, func(ctx context.Context, t *firestore.Transaction) error {
+	err := s.fs.RunTransaction(ctx, func(_ context.Context, t *firestore.Transaction) error {
 		gameSnap, err := t.Get(s.getGameRef(request.GameID))
 		if err != nil {
 			return err

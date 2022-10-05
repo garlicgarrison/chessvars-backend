@@ -46,7 +46,7 @@ func (s *service) populateElo(e EloDocument) *Elo {
 
 func (s *service) CreateElo(ctx context.Context, request CreateEloRequest) (*CreateEloResponse, error) {
 	var elo EloDocument
-	err := s.fs.RunTransaction(ctx, func(ctx context.Context, t *firestore.Transaction) error {
+	err := s.fs.RunTransaction(ctx, func(_ context.Context, t *firestore.Transaction) error {
 		eloSnap, err := t.Get(s.getEloRef(request.UserID, request.Game))
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
@@ -83,6 +83,30 @@ func (s *service) GetElo(ctx context.Context, request GetEloRequest) (*GetEloRes
 	}
 
 	return s.populateElo(elo), nil
+}
+
+func (s *service) GetElos(ctx context.Context, request GetElosRequest) (*Elos, error) {
+	eloSnaps, err := s.getElosRef(request.UserID).
+		Documents(ctx).
+		GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	eloArr := make([]*Elo, 0)
+	for _, eloSnap := range eloSnaps {
+		var elo EloDocument
+		err = eloSnap.DataTo(&elo)
+		if err != nil {
+			return nil, err
+		}
+
+		eloArr = append(eloArr, s.populateElo(elo))
+	}
+
+	return &Elos{
+		Elos: eloArr,
+	}, nil
 }
 
 func (s *service) UpdateElo(ctx context.Context, request UpdateEloRequest) (*UpdateEloResponse, error) {

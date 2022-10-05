@@ -53,6 +53,11 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	Elo struct {
+		Janggi func(childComplexity int) int
+		Shogi  func(childComplexity int) int
+	}
+
 	Game struct {
 		Aborted   func(childComplexity int) int
 		Draw      func(childComplexity int) int
@@ -164,6 +169,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BasicMutationResponse.Success(childComplexity), true
+
+	case "Elo.janggi":
+		if e.complexity.Elo.Janggi == nil {
+			break
+		}
+
+		return e.complexity.Elo.Janggi(childComplexity), true
+
+	case "Elo.shogi":
+		if e.complexity.Elo.Shogi == nil {
+			break
+		}
+
+		return e.complexity.Elo.Shogi(childComplexity), true
 
 	case "Game.aborted":
 		if e.complexity.Game.Aborted == nil {
@@ -573,12 +592,17 @@ type User {
   id: ID!
   exists: Boolean
   username: String
-  elo: Int
+  elo: Elo
 }
 
 type Users {
   users: [User]
   next: String
+}
+
+type Elo {
+  janggi: Int
+  shogi: Int
 }
 
 type Game {
@@ -953,6 +977,88 @@ func (ec *executionContext) fieldContext_BasicMutationResponse_message(ctx conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Elo_janggi(ctx context.Context, field graphql.CollectedField, obj *resolver.Elo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Elo_janggi(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Janggi(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalOInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Elo_janggi(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Elo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Elo_shogi(ctx context.Context, field graphql.CollectedField, obj *resolver.Elo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Elo_shogi(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Shogi(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalOInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Elo_shogi(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Elo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2437,9 +2543,9 @@ func (ec *executionContext) _User_elo(ctx context.Context, field graphql.Collect
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*resolver.Elo)
 	fc.Result = res
-	return ec.marshalOInt2int(ctx, field.Selections, res)
+	return ec.marshalOElo2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐElo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_elo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2449,7 +2555,13 @@ func (ec *executionContext) fieldContext_User_elo(ctx context.Context, field gra
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			switch field.Name {
+			case "janggi":
+				return ec.fieldContext_Elo_janggi(ctx, field)
+			case "shogi":
+				return ec.fieldContext_Elo_shogi(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Elo", field.Name)
 		},
 	}
 	return fc, nil
@@ -4655,6 +4767,61 @@ func (ec *executionContext) _BasicMutationResponse(ctx context.Context, sel ast.
 	return out
 }
 
+var eloImplementors = []string{"Elo"}
+
+func (ec *executionContext) _Elo(ctx context.Context, sel ast.SelectionSet, obj *resolver.Elo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, eloImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Elo")
+		case "janggi":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Elo_janggi(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "shogi":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Elo_shogi(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var gameImplementors = []string{"Game"}
 
 func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj *resolver.Game) graphql.Marshaler {
@@ -6015,6 +6182,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOElo2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐElo(ctx context.Context, sel ast.SelectionSet, v *resolver.Elo) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Elo(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOGame2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋresolverᚐGame(ctx context.Context, sel ast.SelectionSet, v *resolver.Game) graphql.Marshaler {

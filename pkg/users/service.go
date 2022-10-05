@@ -20,8 +20,6 @@ type service struct {
 	fs firestore.Firestore
 }
 
-const DEFAULT_ELO int = 1200
-
 func NewService(cfg Config) (Service, error) {
 	if cfg.Firestore == nil {
 		return nil, errors.New("firestore required")
@@ -92,7 +90,7 @@ func (s *service) EditUser(ctx context.Context, request EditUserRequest) (*EditU
 	}
 
 	var user UserDocument
-	err := s.fs.RunTransaction(ctx, func(ctx context.Context, t *firestore.Transaction) error {
+	err := s.fs.RunTransaction(ctx, func(_ context.Context, t *firestore.Transaction) error {
 		userSnap, err := t.Get(s.getUserRef(request.UserID))
 		if err != nil {
 			return err
