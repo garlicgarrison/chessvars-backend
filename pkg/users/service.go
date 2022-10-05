@@ -4,12 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
+	"regexp"
+	"strconv"
+	"time"
 
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+const (
+	USERNAME_REGEX = `^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))$`
+	EMAIL_REGEX    = `/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`
 )
 
 type Config struct {
@@ -37,12 +44,66 @@ func populateUser(user *UserDocument) *User {
 	}
 }
 
-func (s *service) CreateUser(ctx context.Context, request CreateUserRequest) (*CreateUserResponse, error) {
-	user := UserDocument{
-		UserID: request.UserID,
+func (s *service) verifyUsername(ctx context.Context, username string) (bool, error) {
+	re := regexp.MustCompile(USERNAME_REGEX)
+	ok := re.Match([]byte(username))
+	if !ok {
+		return false, fmt.Errorf("invalid username")
 	}
 
-	_, err := s.getUserRef(request.UserID).Create(ctx, user)
+	userSnaps, err := s.getUsersRef().Where("username", "==", username).
+		Documents(ctx).
+		GetAll()
+	if err != nil || len(userSnaps) != 0 {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (s *service) getUsernameFromEmail(ctx context.Context, email string) (string, error) {
+	re := regexp.MustCompile(EMAIL_REGEX)
+	matches := re.FindAllStringSubmatch(email, -1)
+
+	if len(matches) < 1 || len(matches[0]) < 1 {
+		return "", fmt.Errorf("could not extract username")
+	}
+
+	username := matches[0][1]
+	newUsername := username
+	identifier := 1
+	for {
+		ok, err := s.verifyUsername(ctx, newUsername)
+		if err != nil {
+			return "", err
+		}
+		if ok {
+			break
+		}
+
+		newUsername = username +
+			strconv.FormatInt(int64(identifier), 10)
+		identifier++
+	}
+
+	return newUsername, nil
+}
+
+func (s *service) CreateUser(ctx context.Context, request CreateUserRequest) (*CreateUserResponse, error) {
+	user := UserDocument{
+		UserID:    request.UserID,
+		Email:     request.Email,
+		CreatedAt: time.Now(),
+	}
+
+	username, err := s.getUsernameFromEmail(ctx, request.Email)
+	if err != nil {
+		fmt.Printf("[getUsernameFromEmail] error -- %s", err)
+		username = ""
+	}
+	user.Username = username
+
+	_, err = s.getUserRef(request.UserID).Create(ctx, user)
 	if err != nil {
 		if status.Code(err) != codes.AlreadyExists {
 			return nil, err
@@ -71,24 +132,6 @@ func (s *service) GetUser(ctx context.Context, request GetUserRequest) (*GetUser
 }
 
 func (s *service) EditUser(ctx context.Context, request EditUserRequest) (*EditUserResponse, error) {
-	verifyUsername := func(username string) (string, error) {
-		if username == "" {
-			return "", errors.New("invalid empty username")
-		}
-
-		// lowercase
-		username = strings.ToLower(username)
-
-		const allowed = "abcdefghijklmnopqrstuvwxyz0123456789&_"
-		for _, c := range username {
-			if !strings.ContainsRune(allowed, c) {
-				return "", fmt.Errorf("invalid username -- username: %s; invalid: %v", username, c)
-			}
-		}
-
-		return username, nil
-	}
-
 	var user UserDocument
 	err := s.fs.RunTransaction(ctx, func(_ context.Context, t *firestore.Transaction) error {
 		userSnap, err := t.Get(s.getUserRef(request.UserID))
@@ -102,12 +145,15 @@ func (s *service) EditUser(ctx context.Context, request EditUserRequest) (*EditU
 		}
 
 		if request.Username != nil {
-			username, err := verifyUsername(*request.Username)
+			ok, err := s.verifyUsername(ctx, *request.Username)
 			if err != nil {
 				return err
 			}
+			if !ok {
+				return fmt.Errorf("invalid username")
+			}
 
-			user.Username = username
+			user.Username = *request.Username
 		}
 
 		return t.Set(s.getUserRef(request.UserID), user)

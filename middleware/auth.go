@@ -12,7 +12,8 @@ import (
 type ContextKey string
 
 const (
-	AUTH_USER_CONTEXT_KEY ContextKey = "AUTH_USER"
+	AUTH_USER_CONTEXT_KEY       ContextKey = "AUTH_USER"
+	AUTH_USER_EMAIL_CONTEXT_KEY ContextKey = "AUTH_USER_EMAIL"
 )
 
 type Auth struct {
@@ -41,7 +42,9 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := format.NewUserIDFromIdentifer(token.UID)
+	email := token.Firebase.Identities["email"].(string)
 	ctx := context.WithValue(r.Context(), AUTH_USER_CONTEXT_KEY, userID)
+	ctx = context.WithValue(ctx, AUTH_USER_EMAIL_CONTEXT_KEY, email)
 	request := r.WithContext(ctx)
 	a.next.ServeHTTP(w, request)
 }
