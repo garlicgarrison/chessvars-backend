@@ -1,8 +1,14 @@
 package users
 
-import "github.com/garlicgarrison/chessvars-backend/pkg/format"
+import (
+	"time"
+
+	"github.com/garlicgarrison/chessvars-backend/pkg/format"
+)
 
 type UserDocument struct {
-	UserID   format.UserID `firestore:"user_id"`
-	Username string        `firestore:"username"`
+	UserID    format.UserID `firestore:"user_id"`
+	Email     string        `firestore:"email"`
+	Username  string        `firestore:"username"`
+	CreatedAt time.Time     `firestore:"created_at"`
 }

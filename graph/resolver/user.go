@@ -34,8 +34,14 @@ func NewUser(services *Services, userID format.UserID) *User {
 					return nil, err
 				}
 
+				authUserEmail, ok := GetAuthUserEmail(ctx)
+				if !ok {
+					return nil, err
+				}
+
 				return services.Users.CreateUser(ctx, users.CreateUserRequest{
 					UserID: userID,
+					Email:  authUserEmail,
 				})
 			}
 

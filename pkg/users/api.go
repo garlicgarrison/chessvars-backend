@@ -19,6 +19,7 @@ type User struct {
 
 type CreateUserRequest struct {
 	UserID format.UserID `json:"user_id"`
+	Email  string        `json:"email"`
 }
 
 type CreateUserResponse = User
