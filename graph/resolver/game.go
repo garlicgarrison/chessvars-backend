@@ -79,6 +79,10 @@ func (g *Game) PlayerOne(ctx context.Context) (*User, error) {
 		return nil, err
 	}
 
+	if game.PlayerOne == "" {
+		return nil, nil
+	}
+
 	return NewUser(g.services, game.PlayerOne), nil
 }
 
@@ -88,6 +92,10 @@ func (g *Game) PlayerTwo(ctx context.Context) (*User, error) {
 		return nil, err
 	}
 
+	if game.PlayerTwo == "" {
+		return nil, nil
+	}
+
 	return NewUser(g.services, game.PlayerTwo), nil
 }
 
@@ -95,6 +103,10 @@ func (g *Game) Winner(ctx context.Context) (*User, error) {
 	game, err := g.getter.Call(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if game.WinnerID == "" {
+		return nil, nil
 	}
 
 	return NewUser(g.services, game.WinnerID), nil
