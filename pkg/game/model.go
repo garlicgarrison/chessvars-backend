@@ -60,10 +60,11 @@ const (
 type GameStatus string
 
 const (
-	INGAME GameStatus = "ingame"
-	WIN    GameStatus = "win"
-	LOSS   GameStatus = "loss"
-	DRAW   GameStatus = "draw"
+	INGAME  GameStatus = "ingame"
+	WIN     GameStatus = "win"
+	LOSS    GameStatus = "loss"
+	DRAW    GameStatus = "draw"
+	Aborted GameStatus = "aborted"
 )
 
 // NOTE: In janggi, the game always starts with red

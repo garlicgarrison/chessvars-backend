@@ -6,7 +6,6 @@ import (
 
 	"github.com/garlicgarrison/chessvars-backend/pkg/elo"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
-	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 )
 
 type Elo struct {
@@ -35,9 +34,9 @@ func (e *Elo) Janggi(ctx context.Context) (int, error) {
 		return 1200, err
 	}
 
-	for _, elo := range reply.Elos {
-		if elo.Game == game.JANGGI {
-			return elo.Elo, nil
+	for _, el := range reply.Elos {
+		if el.Game == elo.JANGGI {
+			return el.Elo, nil
 		}
 	}
 
@@ -50,9 +49,9 @@ func (e *Elo) Shogi(ctx context.Context) (int, error) {
 		return 1200, err
 	}
 
-	for _, elo := range reply.Elos {
-		if elo.Game == game.SHOGI {
-			return elo.Elo, nil
+	for _, el := range reply.Elos {
+		if el.Game == elo.SHOGI {
+			return el.Elo, nil
 		}
 	}
 

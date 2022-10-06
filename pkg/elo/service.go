@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"math"
 	"sync"
+	"time"
 
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
-	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -47,7 +47,7 @@ func (s *service) populateElo(e EloDocument) *Elo {
 func (s *service) CreateElo(ctx context.Context, request CreateEloRequest) (*CreateEloResponse, error) {
 	var elo EloDocument
 	err := s.fs.RunTransaction(ctx, func(_ context.Context, t *firestore.Transaction) error {
-		eloSnap, err := t.Get(s.getEloRef(request.UserID, request.Game))
+		eloSnap, err := t.Get(s.getCurrentEloRef(request.UserID, request.Game))
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
 				elo = EloDocument{
@@ -55,7 +55,7 @@ func (s *service) CreateElo(ctx context.Context, request CreateEloRequest) (*Cre
 					GameType: request.Game,
 					Elo:      DEFAULT_ELO,
 				}
-				return t.Create(s.getEloRef(request.UserID, request.Game), elo)
+				return t.Create(s.getCurrentEloRef(request.UserID, request.Game), elo)
 			}
 
 			return err
@@ -71,7 +71,7 @@ func (s *service) CreateElo(ctx context.Context, request CreateEloRequest) (*Cre
 }
 
 func (s *service) GetElo(ctx context.Context, request GetEloRequest) (*GetEloResponse, error) {
-	eloSnap, err := s.getEloRef(request.UserID, request.Game).Get(ctx)
+	eloSnap, err := s.getCurrentEloRef(request.UserID, request.Game).Get(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -110,6 +110,8 @@ func (s *service) GetElos(ctx context.Context, request GetElosRequest) (*Elos, e
 }
 
 func (s *service) UpdateElo(ctx context.Context, request UpdateEloRequest) (*UpdateEloResponse, error) {
+	now := time.Now()
+
 	var wg sync.WaitGroup
 	wg.Add(2)
 
@@ -171,20 +173,30 @@ func (s *service) UpdateElo(ctx context.Context, request UpdateEloRequest) (*Upd
 
 	var s1 float64
 	switch request.Status {
-	case game.WIN:
+	case WIN:
 		s1 = 1
-	case game.LOSS:
+	case LOSS:
 		s1 = 0
-	case game.DRAW:
+	case DRAW:
 		s1 = 0.5
 	default:
 		s1 = 0
 	}
 
 	newElo := int(math.Round(float64(myElo.Elo) + float64(K_FACTOR)*(s1-expected)))
-	_, err = s.getEloRef(request.UserID, request.Game).Set(ctx, map[string]interface{}{
-		"elo": newElo,
-	}, firestore.MergeAll)
+	batch := s.fs.Batch()
+	batch.Set(s.getCurrentEloRef(request.UserID, request.Game), EloDocument{
+		UserID:    request.UserID,
+		GameType:  request.Game,
+		Elo:       newElo,
+		Timestamp: now,
+	}).Set(s.getTimestampEloRef(request.UserID, request.Game, now), EloDocument{
+		UserID:    request.UserID,
+		GameType:  request.Game,
+		Elo:       newElo,
+		Timestamp: now,
+	})
+	_, err = batch.Commit(ctx)
 	if err != nil {
 		return nil, err
 	}
