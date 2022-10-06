@@ -96,7 +96,7 @@ func (s *service) CreateGame(ctx context.Context, request CreateGameRequest) (*C
 		return nil, err
 	}
 
-	return nil, nil
+	return s.populateGame(&gameDoc), nil
 }
 
 func (s *service) GetGame(ctx context.Context, request GetGameRequest) (*GetGameResponse, error) {
