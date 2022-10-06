@@ -75,7 +75,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	game, err := game.NewService(game.Config{
+	elo, err := elo.NewService(elo.Config{
 		Firestore: fs,
 	})
 	if err != nil {
@@ -83,8 +83,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	elo, err := elo.NewService(elo.Config{
-		Firestore: fs,
+	game, err := game.NewService(game.Config{
+		Firestore:  fs,
+		EloService: elo,
 	})
 	if err != nil {
 		fmt.Printf("failed to init users service: %s", err)
