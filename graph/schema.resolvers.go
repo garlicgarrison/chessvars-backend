@@ -123,16 +123,18 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 		return nil, err
 	}
 
-	var gameStatus game.GameStatus
-	switch *status {
-	case model.GameStatusWin:
-		gameStatus = game.WIN
-	case model.GameStatusIngame:
-		gameStatus = game.INGAME
-	case model.GameStatusLoss:
-		gameStatus = game.LOSS
-	case model.GameStatusDraw:
-		gameStatus = game.DRAW
+	gameStatus := game.INGAME
+	if status != nil {
+		switch *status {
+		case model.GameStatusWin:
+			gameStatus = game.WIN
+		case model.GameStatusIngame:
+			gameStatus = game.INGAME
+		case model.GameStatusLoss:
+			gameStatus = game.LOSS
+		case model.GameStatusDraw:
+			gameStatus = game.DRAW
+		}
 	}
 
 	game, err := r.Services.Game.EditGame(ctx, game.EditGameRequest{
