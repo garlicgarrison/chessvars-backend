@@ -72,6 +72,7 @@ func (s *service) CreateGame(ctx context.Context, request CreateGameRequest) (*C
 
 	gameDoc := GameDocument{
 		ID:        gameID,
+		Moves:     make([]Move, 0),
 		TimeLimit: request.TimeLimit,
 		Timestamp: now,
 	}
