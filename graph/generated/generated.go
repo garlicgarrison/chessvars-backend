@@ -83,6 +83,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		GameAbort  func(childComplexity int, id string) int
 		GameCreate func(childComplexity int, typeArg model.GameType, limit resolver.TimeLimit) int
 		GameJoin   func(childComplexity int, id string) int
 		GameMove   func(childComplexity int, id string, move string, status *model.GameStatus) int
@@ -127,6 +128,7 @@ type MutationResolver interface {
 	GameCreate(ctx context.Context, typeArg model.GameType, limit resolver.TimeLimit) (*model.GameMutationResponse, error)
 	GameJoin(ctx context.Context, id string) (*model.GameMutationResponse, error)
 	GameMove(ctx context.Context, id string, move string, status *model.GameStatus) (*model.GameMutationResponse, error)
+	GameAbort(ctx context.Context, id string) (*model.GameMutationResponse, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id *string) (*resolver.User, error)
@@ -290,6 +292,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Move.Timestamp(childComplexity), true
+
+	case "Mutation.gameAbort":
+		if e.complexity.Mutation.GameAbort == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_gameAbort_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.GameAbort(childComplexity, args["id"].(string)), true
 
 	case "Mutation.gameCreate":
 		if e.complexity.Mutation.GameCreate == nil {
@@ -597,6 +611,7 @@ type Mutation {
   gameCreate(type: GameType!, limit: TimeLimit!): GameMutationResponse!
   gameJoin(id: ID!): GameMutationResponse!
   gameMove(id: ID!, move: String!, status: GameStatus): GameMutationResponse!
+  gameAbort(id: ID!): GameMutationResponse!
 }
 
 type Subscription {
@@ -682,6 +697,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_gameAbort_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_gameCreate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -2083,6 +2113,71 @@ func (ec *executionContext) fieldContext_Mutation_gameMove(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_gameMove_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_gameAbort(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_gameAbort(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().GameAbort(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GameMutationResponse)
+	fc.Result = res
+	return ec.marshalNGameMutationResponse2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameMutationResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_gameAbort(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_GameMutationResponse_code(ctx, field)
+			case "success":
+				return ec.fieldContext_GameMutationResponse_success(ctx, field)
+			case "message":
+				return ec.fieldContext_GameMutationResponse_message(ctx, field)
+			case "game":
+				return ec.fieldContext_GameMutationResponse_game(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GameMutationResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_gameAbort_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -5283,6 +5378,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_gameMove(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "gameAbort":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_gameAbort(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {

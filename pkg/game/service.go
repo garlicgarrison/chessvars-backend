@@ -7,16 +7,21 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/garlicgarrison/chessvars-backend/pkg/elo"
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 )
 
 type Config struct {
 	Firestore firestore.Firestore
+
+	EloService elo.Service
 }
 
 type service struct {
 	fs firestore.Firestore
+
+	elo elo.Service
 }
 
 func NewService(cfg Config) (Service, error) {
@@ -25,7 +30,8 @@ func NewService(cfg Config) (Service, error) {
 	}
 
 	return &service{
-		fs: cfg.Firestore,
+		fs:  cfg.Firestore,
+		elo: cfg.EloService,
 	}, nil
 }
 
@@ -132,31 +138,55 @@ func (s *service) EditGame(ctx context.Context, request EditGameRequest) (*EditG
 			return fmt.Errorf("move not validated")
 		}
 
-		isPlayer1 := game.PlayerOne == request.UserID
+		var otherUserID format.UserID
+		if game.PlayerOne == request.UserID {
+			otherUserID = game.PlayerTwo
+		} else {
+			otherUserID = game.PlayerOne
+		}
+
 		switch request.Status {
 		case LOSS:
-			if isPlayer1 {
-				game.WinnerID = game.PlayerTwo
-			} else {
-				game.WinnerID = game.PlayerOne
-			}
+			game.WinnerID = otherUserID
+
+			// TODO: make a way to update even if fail
+			s.elo.UpdateElo(ctx, elo.UpdateEloRequest{
+				UserID:      request.UserID,
+				OtherUserID: otherUserID,
+				Game:        elo.GameType(game.Type),
+				Status:      elo.LOSS,
+			})
 		case WIN:
-			if isPlayer1 {
-				game.WinnerID = game.PlayerOne
-			} else {
-				game.WinnerID = game.PlayerTwo
-			}
+			game.WinnerID = request.UserID
+
+			s.elo.UpdateElo(ctx, elo.UpdateEloRequest{
+				UserID:      request.UserID,
+				OtherUserID: otherUserID,
+				Game:        elo.GameType(game.Type),
+				Status:      elo.WIN,
+			})
 		case DRAW:
 			game.Draw = true
+
+			s.elo.UpdateElo(ctx, elo.UpdateEloRequest{
+				UserID:      request.UserID,
+				OtherUserID: otherUserID,
+				Game:        elo.GameType(game.Type),
+				Status:      elo.DRAW,
+			})
+		case Aborted:
+			game.Aborted = true
 		case INGAME:
 			break
 		}
 
-		newMoves := append(game.Moves, Move{
-			Move:      request.Move,
-			Timestamp: now,
-		})
-		game.Moves = newMoves
+		if request.Move != nil {
+			newMoves := append(game.Moves, Move{
+				Move:      *request.Move,
+				Timestamp: now,
+			})
+			game.Moves = newMoves
+		}
 
 		return t.Set(
 			s.getGameRef(request.GameID),
