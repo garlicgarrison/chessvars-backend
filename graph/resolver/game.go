@@ -130,6 +130,15 @@ func (g *Game) Aborted(ctx context.Context) (bool, error) {
 	return game.Aborted, nil
 }
 
+func (g *Game) Type(ctx context.Context) (string, error) {
+	game, err := g.getter.Call(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return game.Type.String(), nil
+}
+
 func (g *Game) TimeLimit(ctx context.Context) (TimeLimit, error) {
 	game, err := g.getter.Call(ctx)
 	if err != nil {

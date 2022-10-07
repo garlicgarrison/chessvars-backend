@@ -38,6 +38,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Game() GameResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	Subscription() SubscriptionResolver
@@ -67,6 +68,7 @@ type ComplexityRoot struct {
 		PlayerTwo func(childComplexity int) int
 		TimeLimit func(childComplexity int) int
 		Timestamp func(childComplexity int) int
+		Type      func(childComplexity int) int
 		Winner    func(childComplexity int) int
 	}
 
@@ -122,6 +124,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type GameResolver interface {
+	Type(ctx context.Context, obj *resolver.Game) (*model.GameType, error)
+}
 type MutationResolver interface {
 	UserEdit(ctx context.Context, input model.UserEditInput) (*model.UserMutationResponse, error)
 	UserDelete(ctx context.Context) (*model.BasicMutationResponse, error)
@@ -243,6 +248,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Game.Timestamp(childComplexity), true
+
+	case "Game.type":
+		if e.complexity.Game.Type == nil {
+			break
+		}
+
+		return e.complexity.Game.Type(childComplexity), true
 
 	case "Game.winner":
 		if e.complexity.Game.Winner == nil {
@@ -646,6 +658,7 @@ type Game {
   winner: User
   draw: Boolean
   aborted: Boolean
+  type: GameType
   timeLimit: TimeLimit
   timestamp: String
 }
@@ -1450,6 +1463,47 @@ func (ec *executionContext) fieldContext_Game_aborted(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Game_type(ctx context.Context, field graphql.CollectedField, obj *resolver.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Game().Type(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.GameType)
+	fc.Result = res
+	return ec.marshalOGameType2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GameType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Game_timeLimit(ctx context.Context, field graphql.CollectedField, obj *resolver.Game) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Game_timeLimit(ctx, field)
 	if err != nil {
@@ -1714,6 +1768,8 @@ func (ec *executionContext) fieldContext_GameMutationResponse_game(ctx context.C
 				return ec.fieldContext_Game_draw(ctx, field)
 			case "aborted":
 				return ec.fieldContext_Game_aborted(ctx, field)
+			case "type":
+				return ec.fieldContext_Game_type(ctx, field)
 			case "timeLimit":
 				return ec.fieldContext_Game_timeLimit(ctx, field)
 			case "timestamp":
@@ -2300,6 +2356,8 @@ func (ec *executionContext) fieldContext_Query_game(ctx context.Context, field g
 				return ec.fieldContext_Game_draw(ctx, field)
 			case "aborted":
 				return ec.fieldContext_Game_aborted(ctx, field)
+			case "type":
+				return ec.fieldContext_Game_type(ctx, field)
 			case "timeLimit":
 				return ec.fieldContext_Game_timeLimit(ctx, field)
 			case "timestamp":
@@ -5173,6 +5231,23 @@ func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj
 				return innerFunc(ctx)
 
 			})
+		case "type":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Game_type(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "timeLimit":
 			field := field
 
@@ -6470,6 +6545,22 @@ func (ec *executionContext) unmarshalOGameStatus2ᚖgithubᚗcomᚋgarlicgarriso
 }
 
 func (ec *executionContext) marshalOGameStatus2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameStatus(ctx context.Context, sel ast.SelectionSet, v *model.GameStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOGameType2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameType(ctx context.Context, v interface{}) (*model.GameType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.GameType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOGameType2ᚖgithubᚗcomᚋgarlicgarrisonᚋchessvarsᚑbackendᚋgraphᚋmodelᚐGameType(ctx context.Context, sel ast.SelectionSet, v *model.GameType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

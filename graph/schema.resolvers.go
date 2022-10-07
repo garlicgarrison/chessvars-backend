@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
 	"github.com/garlicgarrison/chessvars-backend/graph/model"
@@ -15,6 +16,11 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 	"google.golang.org/grpc/codes"
 )
+
+// Type is the resolver for the type field.
+func (r *gameResolver) Type(ctx context.Context, obj *resolver.Game) (*model.GameType, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 
 // UserEdit is the resolver for the userEdit field.
 func (r *mutationResolver) UserEdit(ctx context.Context, input model.UserEditInput) (*model.UserMutationResponse, error) {
@@ -71,7 +77,7 @@ func (r *mutationResolver) GameCreate(ctx context.Context, typeArg model.GameTyp
 	}
 
 	return &model.GameMutationResponse{
-		Code:    int(codes.OK),
+		Code:    http.StatusOK,
 		Success: true,
 		Message: "game was successfully created",
 		Game:    resolver.NewGameWithData(r.Services, game),
@@ -155,7 +161,7 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 	r.mutex.Unlock()
 
 	return &model.GameMutationResponse{
-		Code:    int(codes.OK),
+		Code:    http.StatusOK,
 		Success: true,
 		Message: "move was successfully added",
 		Game:    resolver.NewGameWithData(r.Services, game),
@@ -188,7 +194,7 @@ func (r *mutationResolver) GameAbort(ctx context.Context, id string) (*model.Gam
 	}
 
 	return &model.GameMutationResponse{
-		Code:    int(codes.OK),
+		Code:    http.StatusOK,
 		Success: true,
 		Message: "game aborted",
 		Game:    resolver.NewGameWithData(r.Services, reply),
@@ -251,6 +257,9 @@ func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan
 	return mc, nil
 }
 
+// Game returns generated.GameResolver implementation.
+func (r *Resolver) Game() generated.GameResolver { return &gameResolver{r} }
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
@@ -260,6 +269,7 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 // Subscription returns generated.SubscriptionResolver implementation.
 func (r *Resolver) Subscription() generated.SubscriptionResolver { return &subscriptionResolver{r} }
 
+type gameResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
