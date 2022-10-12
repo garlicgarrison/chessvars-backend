@@ -1,6 +1,9 @@
 package middleware
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 type Cors struct {
 	next http.Handler
@@ -11,6 +14,7 @@ func NewCors(next http.Handler) *Cors {
 }
 
 func (c *Cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Printf("r method %v", r.Method)
 	w.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
