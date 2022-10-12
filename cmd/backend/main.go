@@ -115,6 +115,7 @@ func main() {
 		KeepAlivePingInterval: 10 * time.Second,
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
+				log.Printf("checkorigin %v", true)
 				return true
 			},
 		},
