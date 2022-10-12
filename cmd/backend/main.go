@@ -12,6 +12,7 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/garlicgarrison/chessvars-backend/graph"
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
@@ -23,6 +24,7 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 	"github.com/gorilla/websocket"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/rs/cors"
 )
 
 type Config struct {
@@ -44,7 +46,6 @@ func main() {
 	fmt.Printf("config: %v", cfg)
 
 	/* start section: third party */
-
 	app, err := firebase.NewApp(ctx, nil)
 	if err != nil {
 		log.Printf("error in initializing firebase: %s\n", err)
@@ -65,7 +66,6 @@ func main() {
 	/* end section: third party */
 
 	/* start section: initialize server */
-
 	users, err := users.NewService(users.Config{
 		Firestore: fs,
 	})
@@ -110,7 +110,7 @@ func main() {
 			},
 		),
 	)
-
+	graphql.AddTransport(transport.POST{})
 	graphql.AddTransport(&transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
 		Upgrader: websocket.Upgrader{
@@ -124,11 +124,17 @@ func main() {
 			return ctx, nil
 		},
 	})
-
+	graphql.Use(extension.Introspection{})
 	/* end section: initialize server */
 
-	/* start section: register routes */
+	/* start section: cors */
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+	})
+	/* end section: cors */
 
+	/* start section: register routes */
 	mux := http.NewServeMux()
 
 	// mux.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
@@ -145,8 +151,7 @@ func main() {
 			),
 		),
 	)
-	mux.Handle("/subscriptions", graphql)
-
+	mux.Handle("/subscriptions", c.Handler(graphql))
 	/* end section: register routes */
 
 	handler := middleware.NewRecover(
