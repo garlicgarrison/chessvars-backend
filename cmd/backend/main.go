@@ -145,7 +145,7 @@ func main() {
 			),
 		),
 	)
-	mux.Handle("/subscriptions", middleware.NewCors(graphql))
+	mux.Handle("/subscriptions", graphql)
 
 	/* end section: register routes */
 
