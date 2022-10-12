@@ -125,6 +125,7 @@ func main() {
 		)
 	})
 	mux.Handle("/graphql", middleware.NewAuth(client, graphql))
+	mux.Handle("/subscriptions", middleware.NewAuth(client, graphql))
 
 	/* end section: register routes */
 
