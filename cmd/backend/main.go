@@ -138,17 +138,24 @@ func main() {
 			http.StatusSeeOther,
 		)
 	})
-	mux.Handle("/graphql", middleware.NewAuth(client, graphql))
-	mux.Handle("/subscriptions", graphql)
+	mux.Handle("/graphql",
+		middleware.NewLogger(
+			middleware.NewCors(
+				middleware.NewAuth(client, graphql),
+			),
+		),
+	)
+	mux.Handle("/subscriptions", middleware.NewCors(graphql))
 
 	/* end section: register routes */
 
 	handler := middleware.NewRecover(
-		middleware.NewLogger(
-			middleware.NewCors(
-				mux,
-			),
-		),
+		mux,
+		// middleware.NewLogger(
+		// 	middleware.NewCors(
+		// 		mux,
+		// 	),
+		// ),
 	)
 
 	server := http.Server{
