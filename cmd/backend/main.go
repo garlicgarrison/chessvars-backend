@@ -12,7 +12,6 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/garlicgarrison/chessvars-backend/graph"
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
@@ -24,7 +23,6 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 	"github.com/gorilla/websocket"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rs/cors"
 )
 
 type Config struct {
@@ -103,19 +101,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	graphql := handler.NewDefaultServer(
+	graphql := handler.New(
 		generated.NewExecutableSchema(
 			generated.Config{
 				Resolvers: resolver,
 			},
 		),
 	)
-	graphql.AddTransport(transport.POST{})
+
 	graphql.AddTransport(&transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
-				log.Printf("checkorigin %v", true)
 				return true
 			},
 			ReadBufferSize:  1024,
@@ -126,14 +123,13 @@ func main() {
 			return ctx, nil
 		},
 	})
-	graphql.Use(extension.Introspection{})
 	/* end section: initialize server */
 
 	/* start section: cors */
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowCredentials: true,
-	})
+	// c := cors.New(cors.Options{
+	// 	AllowedOrigins:   []string{"*"},
+	// 	AllowCredentials: true,
+	// })
 	/* end section: cors */
 
 	/* start section: register routes */
@@ -153,7 +149,7 @@ func main() {
 			),
 		),
 	)
-	mux.Handle("/subscriptions", c.Handler(graphql))
+	mux.Handle("/subscriptions", graphql)
 	/* end section: register routes */
 
 	handler := middleware.NewRecover(
