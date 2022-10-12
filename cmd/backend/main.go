@@ -118,6 +118,8 @@ func main() {
 				log.Printf("checkorigin %v", true)
 				return true
 			},
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
 		},
 		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
 			log.Printf("init payload %v", initPayload)
