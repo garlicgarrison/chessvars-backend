@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -20,6 +21,7 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
+	"github.com/gorilla/websocket"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -109,7 +111,18 @@ func main() {
 		),
 	)
 
-	graphql.AddTransport(&transport.Websocket{})
+	graphql.AddTransport(&transport.Websocket{
+		KeepAlivePingInterval: 10 * time.Second,
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
+			log.Printf("init payload %v", initPayload)
+			return ctx, nil
+		},
+	})
 
 	/* end section: initialize server */
 
@@ -125,7 +138,7 @@ func main() {
 		)
 	})
 	mux.Handle("/graphql", middleware.NewAuth(client, graphql))
-	mux.Handle("/subscriptions", middleware.NewAuth(client, graphql))
+	mux.Handle("/subscriptions", graphql)
 
 	/* end section: register routes */
 
