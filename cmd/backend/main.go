@@ -8,12 +8,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/garlicgarrison/chessvars-backend/graph"
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
 	"github.com/garlicgarrison/chessvars-backend/graph/resolver"
@@ -22,7 +20,6 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/firestore"
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
-	"github.com/gorilla/websocket"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -112,14 +109,7 @@ func main() {
 		),
 	)
 
-	graphql.AddTransport(&transport.Websocket{
-		Upgrader: websocket.Upgrader{
-			CheckOrigin: func(r *http.Request) bool {
-				return true
-			},
-		},
-		KeepAlivePingInterval: 10 * time.Second,
-	})
+	graphql.AddTransport(&transport.Websocket{})
 
 	/* end section: initialize server */
 
@@ -127,7 +117,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
+	// mux.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
 	mux.HandleFunc("/explorer", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r,
 			fmt.Sprintf("https://sandbox.apollo.dev/?endpoint=%s", cfg.Address+"/graphql"),
