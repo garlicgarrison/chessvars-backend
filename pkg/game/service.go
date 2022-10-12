@@ -223,7 +223,7 @@ func (s *service) JoinGame(ctx context.Context, request JoinGameRequest) (*EditG
 		} else if game.PlayerTwo == "" {
 			game.PlayerTwo = request.UserID
 		} else {
-			return fmt.Errorf("this game is no longer available")
+			return fmt.Errorf("game cannot be joined")
 		}
 
 		return t.Set(
