@@ -12,6 +12,9 @@ import (
 
 type MutationResponse interface {
 	IsMutationResponse()
+	GetCode() int
+	GetSuccess() bool
+	GetMessage() string
 }
 
 type BasicMutationResponse struct {
@@ -20,7 +23,10 @@ type BasicMutationResponse struct {
 	Message string `json:"message"`
 }
 
-func (BasicMutationResponse) IsMutationResponse() {}
+func (BasicMutationResponse) IsMutationResponse()     {}
+func (this BasicMutationResponse) GetCode() int       { return this.Code }
+func (this BasicMutationResponse) GetSuccess() bool   { return this.Success }
+func (this BasicMutationResponse) GetMessage() string { return this.Message }
 
 type GameMutationResponse struct {
 	Code    int            `json:"code"`
@@ -29,7 +35,10 @@ type GameMutationResponse struct {
 	Game    *resolver.Game `json:"game"`
 }
 
-func (GameMutationResponse) IsMutationResponse() {}
+func (GameMutationResponse) IsMutationResponse()     {}
+func (this GameMutationResponse) GetCode() int       { return this.Code }
+func (this GameMutationResponse) GetSuccess() bool   { return this.Success }
+func (this GameMutationResponse) GetMessage() string { return this.Message }
 
 type Pagination struct {
 	Cursor *string `json:"cursor"`
@@ -48,7 +57,10 @@ type UserMutationResponse struct {
 	User    *resolver.User `json:"user"`
 }
 
-func (UserMutationResponse) IsMutationResponse() {}
+func (UserMutationResponse) IsMutationResponse()     {}
+func (this UserMutationResponse) GetCode() int       { return this.Code }
+func (this UserMutationResponse) GetSuccess() bool   { return this.Success }
+func (this UserMutationResponse) GetMessage() string { return this.Message }
 
 type Users struct {
 	Users []*resolver.User `json:"users"`

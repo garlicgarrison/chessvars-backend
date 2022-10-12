@@ -15,14 +15,11 @@ func NewCors(next http.Handler) *Cors {
 
 func (c *Cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("r method %v", r.Method)
-	w.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Access-Control-Allow-Headers",
 		"Accept, Content-Type, Content-Length, Accept-Encoding, Authorization")
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	c.next.ServeHTTP(w, r)
 }
