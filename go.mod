@@ -12,7 +12,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.27.1
 	github.com/elastic/go-elasticsearch/v8 v8.3.0
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/gorilla/websocket v1.5.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/rs/cors v1.8.2
 	github.com/stretchr/testify v1.7.1
 	github.com/vektah/gqlparser/v2 v2.5.1
 	go.uber.org/zap v1.13.0
@@ -53,7 +55,6 @@ require (
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
