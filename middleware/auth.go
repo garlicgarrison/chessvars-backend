@@ -53,5 +53,4 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		request := r.WithContext(ctx)
 		a.next.ServeHTTP(w, request)
 	}
-
 }
