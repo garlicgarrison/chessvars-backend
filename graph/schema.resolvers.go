@@ -156,6 +156,7 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 
 	// send move to all channels with given gameID
 	moveObservers := r.getObserverMap(gameID)
+	log.Printf("moveObsercers %v", moveObservers)
 	moveObservers.MoveObservers.Range(func(_, value interface{}) bool {
 		observer := value.(*MoveObserver)
 		if observer.UserID != userID {
