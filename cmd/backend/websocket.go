@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
@@ -20,6 +21,7 @@ func initWebsocket(ctx context.Context, client *auth.Client, payload transport.I
 	id := payload.Authorization()
 
 	token, err := client.VerifyIDToken(ctx, id)
+	log.Printf("token and err %v %s", token, err)
 	if err != nil {
 		return nil, fmt.Errorf("[initWebsocket] -- could not verify token")
 	}
