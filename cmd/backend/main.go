@@ -110,6 +110,7 @@ func main() {
 		),
 	)
 
+	graphql.AddTransport(transport.POST{})
 	graphql.AddTransport(&transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
 		Upgrader: websocket.Upgrader{
