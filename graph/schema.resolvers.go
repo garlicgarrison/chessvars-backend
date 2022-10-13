@@ -159,6 +159,7 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 	log.Printf("moveObsercers %v", moveObservers)
 	moveObservers.MoveObservers.Range(func(_, value interface{}) bool {
 		observer := value.(*MoveObserver)
+		log.Printf("[gameMove] -- move: %v, userID: %s", observer.Move, observer.UserID.String())
 		if observer.UserID != userID {
 			observer.Move <- resolver.NewMove(r.Services, &gameReply.Moves[len(gameReply.Moves)-1])
 		}
