@@ -27,6 +27,7 @@ func initWebsocket(ctx context.Context, client *auth.Client, payload transport.I
 	}
 
 	userID := format.NewUserIDFromIdentifer(token.UID)
+	log.Printf("userID", userID)
 	email := token.Firebase.Identities["email"].([]interface{})[0].(string)
 	ctx = context.WithValue(ctx, AUTH_USER_CONTEXT_KEY, userID)
 	ctx = context.WithValue(ctx, AUTH_USER_EMAIL_CONTEXT_KEY, email)

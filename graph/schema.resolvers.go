@@ -241,7 +241,7 @@ func (r *queryResolver) Game(ctx context.Context, id string) (*resolver.Game, er
 
 // OnMoveNew is the resolver for the onMoveNew field.
 func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan *resolver.Move, error) {
-	fmt.Printf("HELLOOOOOO")
+	log.Printf("HELLOOOOOO %v", ctx)
 	userID, ok := resolver.GetAuthUserID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("could not parse user from context")
