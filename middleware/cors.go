@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 )
 
@@ -18,7 +17,6 @@ func (c *Cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if protocol == "graphql-ws" {
 		c.next.ServeHTTP(w, r)
 	} else {
-		log.Printf("r method %v", r.Method)
 		w.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
