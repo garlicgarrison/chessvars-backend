@@ -158,7 +158,6 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 	moveObservers := r.getObserverMap(gameID)
 
 	// testing
-	log.Printf("moveObservers %v", moveObservers.MoveObservers)
 	moveObservers.MoveObservers.Range(func(_, value interface{}) bool {
 		observer := value.(*MoveObserver)
 		log.Printf("[gameMove] -- move: %v, userID: %s", observer.Move, observer.UserID.String())

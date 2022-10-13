@@ -120,7 +120,6 @@ func main() {
 			WriteBufferSize: 1024,
 		},
 		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
-			log.Printf("init payload %v", initPayload)
 			return initWebsocket(ctx, client, initPayload)
 		},
 	})

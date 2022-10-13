@@ -14,7 +14,6 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gorilla/websocket v1.5.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/rs/cors v1.8.2
 	github.com/stretchr/testify v1.7.1
 	github.com/vektah/gqlparser/v2 v2.5.1
 	go.uber.org/zap v1.13.0
