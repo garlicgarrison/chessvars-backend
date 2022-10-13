@@ -13,7 +13,6 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
 	"github.com/garlicgarrison/chessvars-backend/graph/model"
 	"github.com/garlicgarrison/chessvars-backend/graph/resolver"
-	"github.com/garlicgarrison/chessvars-backend/middleware"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 	"google.golang.org/grpc/codes"
@@ -211,39 +210,6 @@ func (r *mutationResolver) GameAbort(ctx context.Context, id string) (*model.Gam
 	}, nil
 }
 
-// GameAbort is the resolver for the gameAbort field.
-func (r *mutationResolver) GameAbort(ctx context.Context, id string) (*model.GameMutationResponse, error) {
-	userID, ok := resolver.GetAuthUserID(ctx)
-	if !ok {
-		return nil, fmt.Errorf("could not validate user")
-	}
-
-	gameID, err := format.ParseGameID(id)
-	if err != nil {
-		return nil, err
-	}
-
-	reply, err := r.Services.Game.EditGame(ctx, game.EditGameRequest{
-		UserID: userID,
-		GameID: gameID,
-		Status: game.Aborted,
-	})
-	if err != nil {
-		return &model.GameMutationResponse{
-			Code:    int(codes.Internal),
-			Success: false,
-			Message: "could not abort game",
-		}, nil
-	}
-
-	return &model.GameMutationResponse{
-		Code:    http.StatusOK,
-		Success: true,
-		Message: "game aborted",
-		Game:    resolver.NewGameWithData(r.Services, reply),
-	}, nil
-}
-
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id *string) (*resolver.User, error) {
 	if id != nil {
@@ -275,8 +241,6 @@ func (r *queryResolver) Game(ctx context.Context, id string) (*resolver.Game, er
 
 // OnMoveNew is the resolver for the onMoveNew field.
 func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan *resolver.Move, error) {
-	str, ok := ctx.Value(middleware.AUTH_USER_CONTEXT_KEY).(string)
-	log.Printf("HELLOOOOOO %s -- %v", str, ctx)
 	userID, ok := resolver.GetAuthUserID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("could not parse user from context")

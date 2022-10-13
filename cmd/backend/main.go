@@ -23,7 +23,6 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 	"github.com/gorilla/websocket"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rs/cors"
 )
 
 type Config struct {

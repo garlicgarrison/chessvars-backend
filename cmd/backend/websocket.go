@@ -11,9 +11,6 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 )
 
-
-
-
 func initWebsocket(ctx context.Context, client *auth.Client, payload transport.InitPayload) (context.Context, error) {
 	id := payload.Authorization()
 
