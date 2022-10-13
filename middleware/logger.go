@@ -16,14 +16,20 @@ func NewLogger(next http.Handler) *Logger {
 }
 
 func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	response := &loggerResponseWriter{ResponseWriter: w}
+	protocol := r.Header.Get("Sec-Websocket-Protocol")
+	if protocol == "graphql-ws" {
+		l.next.ServeHTTP(w, r)
+	} else {
+		response := &loggerResponseWriter{ResponseWriter: w}
 
-	start := time.Now()
-	defer func() {
-		log.Printf("[%d] %s %s %s\nresp: %s\n", response.code, r.Method, r.URL.Path, time.Since(start), response.resp.String())
-	}()
+		start := time.Now()
+		defer func() {
+			log.Printf("[%d] %s %s %s\nresp: %s\n", response.code, r.Method, r.URL.Path, time.Since(start), response.resp.String())
+		}()
 
-	l.next.ServeHTTP(response, r)
+		l.next.ServeHTTP(response, r)
+	}
+
 }
 
 type loggerResponseWriter struct {

@@ -26,25 +26,31 @@ func NewAuth(client *auth.Client, next http.Handler) *Auth {
 }
 
 func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	id := r.Header.Get("Authorization")
-	if id == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("missing Authorization header -- must have a valid id token"))
-		return
-	}
+	// w.Write([]byte(fmt.Sprintf("headers %v", r.Header)))
+	protocol := r.Header.Get("Sec-Websocket-Protocol")
+	if protocol == "graphql-ws" {
+		a.next.ServeHTTP(w, r)
+	} else {
+		id := r.Header.Get("Authorization")
+		if id == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("missing Authorization header -- must have a valid id token"))
+			return
+		}
 
-	token, err := a.client.VerifyIDToken(r.Context(), id)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("error in verifying token"))
-		log.Printf("error in verifying token: %s\n", err)
-		return
-	}
+		token, err := a.client.VerifyIDToken(r.Context(), id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("error in verifying token"))
+			log.Printf("error in verifying token: %s\n", err)
+			return
+		}
 
-	userID := format.NewUserIDFromIdentifer(token.UID)
-	email := token.Firebase.Identities["email"].([]interface{})[0].(string)
-	ctx := context.WithValue(r.Context(), AUTH_USER_CONTEXT_KEY, userID)
-	ctx = context.WithValue(ctx, AUTH_USER_EMAIL_CONTEXT_KEY, email)
-	request := r.WithContext(ctx)
-	a.next.ServeHTTP(w, request)
+		userID := format.NewUserIDFromIdentifer(token.UID)
+		email := token.Firebase.Identities["email"].([]interface{})[0].(string)
+		ctx := context.WithValue(r.Context(), AUTH_USER_CONTEXT_KEY, userID)
+		ctx = context.WithValue(ctx, AUTH_USER_EMAIL_CONTEXT_KEY, email)
+		request := r.WithContext(ctx)
+		a.next.ServeHTTP(w, request)
+	}
 }

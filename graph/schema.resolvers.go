@@ -144,7 +144,7 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 		}
 	}
 
-	game, err := r.Services.Game.EditGame(ctx, game.EditGameRequest{
+	gameReply, err := r.Services.Game.EditGame(ctx, game.EditGameRequest{
 		UserID: userID,
 		GameID: gameID,
 		Status: gameStatus,
@@ -155,17 +155,25 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 	}
 
 	// send move to all channels with given gameID
-	r.mutex.Lock()
-	for _, c := range r.moveChannels[gameID] {
-		c <- resolver.NewMove(r.Services, &game.Moves[len(game.Moves)-1])
-	}
-	r.mutex.Unlock()
+	moveObservers := r.getObserverMap(gameID)
+
+	// testing
+	log.Printf("moveObservers %v", moveObservers.MoveObservers)
+	moveObservers.MoveObservers.Range(func(_, value interface{}) bool {
+		observer := value.(*MoveObserver)
+		log.Printf("[gameMove] -- move: %v, userID: %s", observer.Move, observer.UserID.String())
+		if observer.UserID != userID {
+			observer.Move <- resolver.NewMove(r.Services, &gameReply.Moves[len(gameReply.Moves)-1])
+		}
+
+		return true
+	})
 
 	return &model.GameMutationResponse{
 		Code:    http.StatusOK,
 		Success: true,
 		Message: "move was successfully added",
-		Game:    resolver.NewGameWithData(r.Services, game),
+		Game:    resolver.NewGameWithData(r.Services, gameReply),
 	}, nil
 }
 
@@ -244,18 +252,32 @@ func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan
 	}
 
 	mc := make(chan *resolver.Move, 1)
-	r.mutex.Lock()
-	r.moveChannels[gameID][userID] = mc
-	r.mutex.Unlock()
+	observers := r.getObserverMap(gameID)
+	observers.MoveObservers.Store(userID, &MoveObserver{
+		UserID: userID,
+		Move:   mc,
+	})
 
 	go func() {
 		<-ctx.Done()
-		r.mutex.Lock()
-		delete(r.moveChannels, gameID)
-		r.mutex.Unlock()
+		// delete observers
+		observers.MoveObservers.Delete(userID)
+		o, ok := r.GamesMovesMap.Load(gameID)
+		if !ok {
+			return
+		}
+
+		numObservers := 0
+		o.(*Observers).MoveObservers.Range(func(_, _ any) bool {
+			numObservers++
+			return true
+		})
+
+		if numObservers == 0 {
+			r.GamesMovesMap.Delete(gameID)
+		}
 	}()
 
-	log.Printf("[OnMoveNew] %v", mc)
 	return mc, nil
 }
 
