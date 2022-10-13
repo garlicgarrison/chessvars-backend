@@ -30,7 +30,7 @@ func initWebsocket(ctx context.Context, client *auth.Client, payload transport.I
 	log.Printf("userID %s", userID)
 	email := token.Firebase.Identities["email"].([]interface{})[0].(string)
 	ctxNew := context.WithValue(ctx, AUTH_USER_CONTEXT_KEY, userID)
-	ctxNew = context.WithValue(ctx, AUTH_USER_EMAIL_CONTEXT_KEY, email)
+	ctxNew = context.WithValue(ctxNew, AUTH_USER_EMAIL_CONTEXT_KEY, email)
 
 	return ctxNew, nil
 }
