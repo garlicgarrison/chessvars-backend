@@ -30,5 +30,8 @@ type Resolver struct {
 }
 
 func NewResolver(cfg Config) (*Resolver, error) {
-	return &Resolver{Services: cfg.Services}, nil
+	return &Resolver{
+		Services:     cfg.Services,
+		moveChannels: map[format.GameID]map[format.UserID]chan *resolver.Move{},
+	}, nil
 }
