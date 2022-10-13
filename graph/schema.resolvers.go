@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
@@ -254,6 +255,7 @@ func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan
 		r.mutex.Unlock()
 	}()
 
+	log.Printf("[OnMoveNew] %v", mc)
 	return mc, nil
 }
 
