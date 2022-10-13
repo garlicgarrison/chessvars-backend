@@ -24,15 +24,31 @@ type Resolver struct {
 		NOTE: whenever a game changes moves,
 		everyone that subscribes should get a push
 	*/
-	moveChannels map[format.GameID](map[format.UserID]chan *resolver.Move)
+	// moveChannels map[format.GameID](map[format.UserID]chan *resolver.Move)
 
-	mutex sync.Mutex
+	GamesMovesMap sync.Map
+}
+
+type Observers struct {
+	MoveObservers sync.Map
+}
+
+type MoveObserver struct {
+	UserID format.UserID
+	Move   chan *resolver.Move
 }
 
 func NewResolver(cfg Config) (*Resolver, error) {
 	return &Resolver{
-		Services:     cfg.Services,
-		moveChannels: map[format.GameID]map[format.UserID]chan *resolver.Move{},
-		mutex:        sync.Mutex{},
+		Services:      cfg.Services,
+		GamesMovesMap: sync.Map{},
 	}, nil
+}
+
+func (r *Resolver) getObserverMap(gameID format.GameID) *Observers {
+	game, _ := r.GamesMovesMap.LoadOrStore(gameID, &Observers{
+		MoveObservers: sync.Map{},
+	})
+
+	return game.(*Observers)
 }
