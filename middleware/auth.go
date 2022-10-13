@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -27,7 +26,11 @@ func NewAuth(client *auth.Client, next http.Handler) *Auth {
 }
 
 func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(fmt.Sprintf("headers %v", r.Header)))
+	protocol := r.Header.Get("Sec-Websocket-Protocol")
+	if protocol == "graphql-ws" {
+		a.next.ServeHTTP(w, r)
+	}
+
 	id := r.Header.Get("Authorization")
 	if id == "" {
 		w.WriteHeader(http.StatusUnauthorized)

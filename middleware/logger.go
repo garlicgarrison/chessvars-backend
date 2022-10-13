@@ -16,6 +16,11 @@ func NewLogger(next http.Handler) *Logger {
 }
 
 func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	protocol := r.Header.Get("Sec-Websocket-Protocol")
+	if protocol == "graphql-ws" {
+		l.next.ServeHTTP(w, r)
+	}
+
 	response := &loggerResponseWriter{ResponseWriter: w}
 
 	start := time.Now()

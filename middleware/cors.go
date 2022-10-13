@@ -14,6 +14,10 @@ func NewCors(next http.Handler) *Cors {
 }
 
 func (c *Cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	protocol := r.Header.Get("Sec-Websocket-Protocol")
+	if protocol == "graphql-ws" {
+		c.next.ServeHTTP(w, r)
+	}
 	log.Printf("r method %v", r.Method)
 	w.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
