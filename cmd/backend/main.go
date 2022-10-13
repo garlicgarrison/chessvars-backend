@@ -120,17 +120,10 @@ func main() {
 		},
 		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
 			log.Printf("init payload %v", initPayload)
-			return ctx, nil
+			return initWebsocket(ctx, client, initPayload)
 		},
 	})
 	/* end section: initialize server */
-
-	/* start section: cors */
-	// c := cors.New(cors.Options{
-	// 	AllowedOrigins:   []string{"*"},
-	// 	AllowCredentials: true,
-	// })
-	/* end section: cors */
 
 	/* start section: register routes */
 	mux := http.NewServeMux()
@@ -142,23 +135,16 @@ func main() {
 			http.StatusSeeOther,
 		)
 	})
-	mux.Handle("/graphql",
-		middleware.NewLogger(
-			middleware.NewCors(
-				middleware.NewAuth(client, graphql),
-			),
-		),
-	)
+	mux.Handle("/graphql", middleware.NewAuth(client, graphql))
 	mux.Handle("/subscriptions", graphql)
 	/* end section: register routes */
 
 	handler := middleware.NewRecover(
-		mux,
-		// middleware.NewLogger(
-		// 	middleware.NewCors(
-		// 		mux,
-		// 	),
-		// ),
+		middleware.NewLogger(
+			middleware.NewCors(
+				mux,
+			),
+		),
 	)
 
 	server := http.Server{
