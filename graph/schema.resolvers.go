@@ -161,6 +161,8 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 	}
 	r.mutex.Unlock()
 
+	log.Printf("channels %v", r.moveChannels)
+
 	return &model.GameMutationResponse{
 		Code:    http.StatusOK,
 		Success: true,
