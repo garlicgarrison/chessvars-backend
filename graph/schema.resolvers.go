@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
 	"github.com/garlicgarrison/chessvars-backend/graph/model"
@@ -157,6 +156,8 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 
 	// send move to all channels with given gameID
 	moveObservers := r.getObserverMap(gameID)
+
+	// testing
 	log.Printf("moveObservers %v", moveObservers.MoveObservers)
 	moveObservers.MoveObservers.Range(func(_, value interface{}) bool {
 		observer := value.(*MoveObserver)
@@ -240,6 +241,7 @@ func (r *queryResolver) Game(ctx context.Context, id string) (*resolver.Game, er
 
 // OnMoveNew is the resolver for the onMoveNew field.
 func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan *resolver.Move, error) {
+	fmt.Printf("HELLOOOOOO")
 	userID, ok := resolver.GetAuthUserID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("could not parse user from context")
@@ -257,18 +259,27 @@ func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan
 		Move:   mc,
 	})
 
-	mc <- resolver.NewMove(r.Services, &game.MoveResponse{
-		Move:      "i1i10",
-		Timestamp: time.Now(),
-	})
-
 	go func() {
 		<-ctx.Done()
 		// delete observers
 		observers.MoveObservers.Delete(userID)
+		o, ok := r.GamesMovesMap.Load(gameID)
+		if !ok {
+			return
+		}
+
+		numObservers := 0
+		o.(*Observers).MoveObservers.Range(func(_, _ any) bool {
+			numObservers++
+			return true
+		})
+
+		if numObservers == 0 {
+			r.GamesMovesMap.Delete(gameID)
+		}
 	}()
 
-	log.Printf("[OnMoveNew] %v", mc)
+	fmt.Printf("[OnMoveNew] %v", mc)
 	return mc, nil
 }
 
