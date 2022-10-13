@@ -23,7 +23,6 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/pkg/users"
 	"github.com/gorilla/websocket"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rs/cors"
 )
 
 type Config struct {
@@ -127,10 +126,10 @@ func main() {
 	})
 	/* end section: initialize server */
 
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowCredentials: true,
-	})
+	// c := cors.New(cors.Options{
+	// 	AllowedOrigins:   []string{"*"},
+	// 	AllowCredentials: true,
+	// })
 
 	/* start section: register routes */
 	mux := http.NewServeMux()
@@ -148,7 +147,6 @@ func main() {
 				middleware.NewAuth(client, graphql),
 			),
 		))
-	mux.Handle("/subscriptions", c.Handler(graphql))
 	/* end section: register routes */
 
 	handler := middleware.NewRecover(

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
 	"github.com/garlicgarrison/chessvars-backend/graph/model"
@@ -156,7 +157,7 @@ func (r *mutationResolver) GameMove(ctx context.Context, id string, move string,
 
 	// send move to all channels with given gameID
 	moveObservers := r.getObserverMap(gameID)
-	log.Printf("moveObsercers %v", moveObservers)
+	log.Printf("moveObservers %v", moveObservers.MoveObservers)
 	moveObservers.MoveObservers.Range(func(_, value interface{}) bool {
 		observer := value.(*MoveObserver)
 		log.Printf("[gameMove] -- move: %v, userID: %s", observer.Move, observer.UserID.String())
@@ -254,6 +255,11 @@ func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan
 	observers.MoveObservers.Store(userID, &MoveObserver{
 		UserID: userID,
 		Move:   mc,
+	})
+
+	mc <- resolver.NewMove(r.Services, &game.MoveResponse{
+		Move:      "i1i10",
+		Timestamp: time.Now(),
 	})
 
 	go func() {
