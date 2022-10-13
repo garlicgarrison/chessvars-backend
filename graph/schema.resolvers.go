@@ -13,6 +13,7 @@ import (
 	"github.com/garlicgarrison/chessvars-backend/graph/generated"
 	"github.com/garlicgarrison/chessvars-backend/graph/model"
 	"github.com/garlicgarrison/chessvars-backend/graph/resolver"
+	"github.com/garlicgarrison/chessvars-backend/middleware"
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 	"github.com/garlicgarrison/chessvars-backend/pkg/game"
 	"google.golang.org/grpc/codes"
@@ -241,7 +242,7 @@ func (r *queryResolver) Game(ctx context.Context, id string) (*resolver.Game, er
 
 // OnMoveNew is the resolver for the onMoveNew field.
 func (r *subscriptionResolver) OnMoveNew(ctx context.Context, id string) (<-chan *resolver.Move, error) {
-	log.Printf("HELLOOOOOO %v", ctx)
+	log.Printf("HELLOOOOOO %v", ctx.Value(middleware.AUTH_USER_CONTEXT_KEY).(string))
 	userID, ok := resolver.GetAuthUserID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("could not parse user from context")
