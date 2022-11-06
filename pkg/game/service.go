@@ -38,7 +38,10 @@ func NewService(cfg Config) (Service, error) {
 func (s *service) populateGame(game *GameDocument) *Game {
 	moves := make([]MoveResponse, 0)
 	for _, m := range game.Moves {
-		moves = append(moves, MoveResponse(m))
+		moves = append(moves, MoveResponse{
+			Move:      m.Move,
+			Timestamp: m.Timestamp,
+		})
 	}
 
 	return &Game{

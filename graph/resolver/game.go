@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"context"
+	"log"
 
 	"github.com/garlicgarrison/chessvars-backend/pkg/format"
 	game_pb "github.com/garlicgarrison/chessvars-backend/pkg/game"
@@ -64,6 +65,8 @@ func (g *Game) Moves(ctx context.Context) ([]*Move, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("moves %v", game.Moves)
 
 	toRet := make([]*Move, 0)
 	for _, move := range game.Moves {
