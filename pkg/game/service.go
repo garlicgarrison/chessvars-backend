@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -56,6 +57,7 @@ func (s *service) populateGame(game *GameDocument) *Game {
 }
 
 func (s *service) validateMove(userID format.UserID, game *GameDocument) bool {
+	log.Printf("userID %s %v", userID.String(), game)
 	if game.PlayerOne == userID && len(game.Moves)%2 != 1 ||
 		game.PlayerTwo == userID && len(game.Moves)%2 != 0 ||
 		game.Aborted ||
