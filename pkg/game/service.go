@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -43,6 +44,8 @@ func (s *service) populateGame(game *GameDocument) *Game {
 			Timestamp: m.Timestamp,
 		})
 	}
+
+	log.Printf("moves %v %v", game.Moves, moves)
 
 	return &Game{
 		ID:        game.ID,
