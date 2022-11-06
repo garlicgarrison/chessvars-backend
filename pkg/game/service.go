@@ -192,6 +192,7 @@ func (s *service) EditGame(ctx context.Context, request EditGameRequest) (*EditG
 		return t.Set(
 			s.getGameRef(request.GameID),
 			game,
+			firestore.MergeAll,
 		)
 	})
 	if err != nil {
@@ -229,6 +230,7 @@ func (s *service) JoinGame(ctx context.Context, request JoinGameRequest) (*EditG
 		return t.Set(
 			s.getGameRef(request.GameID),
 			game,
+			firestore.MergeAll,
 		)
 	})
 	if err != nil {
